@@ -169,19 +169,19 @@ app.post('/submit-booking', authenticate, async (req, res) => {
 
 
 // Random quote API route
-app.get('/api/quote', async (req, res) => {
-  const agent = new https.Agent({ rejectUnauthorized: false });
-  try {
-    const response = await fetch('https://api.quotable.io/random', { agent });
-    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-    const data = await response.json();
-    res.json(data);
-  } catch (error) {
-    console.error('Error fetching quote:', error);
-    res.status(500).json({ error: 'Failed to fetch quote' });
-  }
-});
+const quotes = [
+  { content: "Love is our true essence. This love should be awakened in every person.", author: "Sri Mata Amritanandamayi Devi" },
+  { content: "Compassion is the language the deaf can hear and the blind can see.", author: "Sri Mata Amritanandamayi Devi" },
+  { content: "The first step in spiritual life is to have the darshan of your own true self.", author: "Sri Mata Amritanandamayi Devi" },
+  { content: "In this universe, everything has a purpose. The invisible intelligence behind everything is what we call God.", author: "Sri Mata Amritanandamayi Devi" },
+  { content: "Happiness depends on how we react to external circumstances.", author: "Sri Mata Amritanandamayi Devi" }
+];
 
+// Random quote API route (without external API)
+app.get('/api/quote', (req, res) => {
+  const randomIndex = Math.floor(Math.random() * quotes.length);
+  res.json(quotes[randomIndex]);
+});
 // Get bookings API route
 // Get bookings API route
 app.get('/api/bookings', authenticate, async (req, res) => {

@@ -60,6 +60,7 @@ const upload = multer({ storage });
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'LoginPage.html'));
 });
+
 // User login route
 app.post('/login', async (req, res) => {
   const { username, password } = req.body;
@@ -116,69 +117,69 @@ app.post('/submit-booking', authenticate, async (req, res) => {
   const userEmail = req.cookies.userEmail;
 
   try {
-      // Convert start and end times to HH:MM AM/PM format
-      const formattedStartTime = convertTo12HourFormat(startTime);
-      const formattedEndTime = convertTo12HourFormat(endTime);
+    // Convert start and end times to HH:MM AM/PM format
+    const formattedStartTime = convertTo12HourFormat(startTime);
+    const formattedEndTime = convertTo12HourFormat(endTime);
 
-      // Manually handle the time zone conversion to avoid any UTC issues.
-      const startDateTime = new Date(`${date}T${startTime}:00`);  // Use local time for comparison
-      const endDateTime = new Date(`${date}T${endTime}:00`);      // Use local time for comparison
+    // Manually handle the time zone conversion to avoid any UTC issues.
+    const startDateTime = new Date(`${date}T${startTime}:00`);  // Use local time for comparison
+    const endDateTime = new Date(`${date}T${endTime}:00`);      // Use local time for comparison
 
-      console.log('Start DateTime:', startDateTime);  // Add logging for debugging
-      console.log('End DateTime:', endDateTime);      // Add logging for debugging
+    console.log('Start DateTime:', startDateTime);  // Add logging for debugging
+    console.log('End DateTime:', endDateTime);      // Add logging for debugging
 
-      // Check if the generated startDateTime and endDateTime are valid
-      if (isNaN(startDateTime) || isNaN(endDateTime)) {
-          return res.status(400).send('Invalid date or time format.');
-      }
+    // Check if the generated startDateTime and endDateTime are valid
+    if (isNaN(startDateTime) || isNaN(endDateTime)) {
+      return res.status(400).send('Invalid date or time format.');
+    }
 
-      // Check for conflicting bookings in the same venue and time slot
-      const conflictingBooking = await Booking.findOne({
-          venue,
-          date,
-          $or: [
-              {
-                  $and: [
-                      { startTime: { $lt: endDateTime } },
-                      { endTime: { $gt: startDateTime } },
-                  ],
-              },
+    // Check for conflicting bookings in the same venue and time slot
+    const conflictingBooking = await Booking.findOne({
+      venue,
+      date,
+      $or: [
+        {
+          $and: [
+            { startTime: { $lt: endDateTime } },
+            { endTime: { $gt: startDateTime } },
           ],
-      });
+        },
+      ],
+    });
 
-      if (conflictingBooking) return res.status(400).send('Conflict: This slot is already booked!');
+    if (conflictingBooking) return res.status(400).send('Conflict: This slot is already booked!');
 
-      // Save new booking to the database
-      const newBooking = new Booking({
-          venue,
-          date,
-          startTime: formattedStartTime,  // Store it as a string in HH:MM AM/PM format
-          endTime: formattedEndTime,      // Store it as a string in HH:MM AM/PM format
-          message,
-          userEmail,
-      });
+    // Save new booking to the database
+    const newBooking = new Booking({
+      venue,
+      date,
+      startTime: formattedStartTime,  // Store it as a string in HH:MM AM/PM format
+      endTime: formattedEndTime,      // Store it as a string in HH:MM AM/PM format
+      message,
+      userEmail,
+    });
 
-      await newBooking.save();
-      res.status(200).send('Booking successfully saved!');
+    await newBooking.save();
+    res.status(200).send('Booking successfully saved!');
   } catch (error) {
-      console.error('Error saving booking:', error);
-      res.status(500).send('Failed to save booking.');
+    console.error('Error saving booking:', error);
+    res.status(500).send('Failed to save booking.');
   }
 });
 
 
-const quotes = [
-  { content: "Love is our true essence. This love should be awakened in every person.", author: "Sri Mata Amritanandamayi Devi" },
-  { content: "Compassion is the language the deaf can hear and the blind can see.", author: "Sri Mata Amritanandamayi Devi" },
-  { content: "The first step in spiritual life is to have the darshan of your own true self.", author: "Sri Mata Amritanandamayi Devi" },
-  { content: "In this universe, everything has a purpose. The invisible intelligence behind everything is what we call God.", author: "Sri Mata Amritanandamayi Devi" },
-  { content: "Happiness depends on how we react to external circumstances.", author: "Sri Mata Amritanandamayi Devi" }
-];
-
-// Random quote API route (without external API)
-app.get('/api/quote', (req, res) => {
-  const randomIndex = Math.floor(Math.random() * quotes.length);
-  res.json(quotes[randomIndex]);
+// Random quote API route
+app.get('/api/quote', async (req, res) => {
+  const agent = new https.Agent({ rejectUnauthorized: false });
+  try {
+    const response = await fetch('https://api.quotable.io/random', { agent });
+    if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('Error fetching quote:', error);
+    res.status(500).json({ error: 'Failed to fetch quote' });
+  }
 });
 
 // Get bookings API route
@@ -275,6 +276,35 @@ app.get('/api/image', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch image' });
   }
 });
+// Route to serve classformcre.html
+app.get('/classformcre', (req, res) => {
+  res.sendFile(path.join(__dirname, 'classformcre.html'));
+});
+
+const classformcreSchema = new mongoose.Schema({
+  courseName: { type: String, required: true },
+  courseCode: { type: String, required: true, unique: true },
+  instructor: { type: String, required: true },
+  slots: [
+    { slot: 1, time: '08:00 - 08:50', status: String },
+    { slot: 2, time: '08:50 - 9:40', status: String },
+    { slot: 3, time: '9:40 - 10:30', status: String },
+    { slot: 4, time: '11:00 - 12:00', status: String },
+    { slot: 5, time: '12:00 - 13:00', status: String },
+    { slot: 6, time: '13:00 - 14:00', status: String },
+    { slot: 7, time: '14:00 - 15:00', status: String },
+    { slot: 8, time: '15:00 - 16:00', status: String },
+    { slot: 9, time: '16:00 - 17:00', status: String },
+    { slot: 10, time: '17:00 - 18:00', status: String },
+    { slot: 11, time: '18:00 - 19:00', status: String },
+    { slot: 12, time: '19:00 - 20:00', status: String }
+  ],
+  location: { type: String, required: true },
+  description: String,
+  createdAt: { type: Date, default: Date.now },
+});
+
+
 // Start the server
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server is running on http://localhost:${PORT}`));

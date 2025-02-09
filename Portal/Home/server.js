@@ -308,5 +308,3 @@ const classformcreSchema = new mongoose.Schema({
 // Start the server
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server is running on http://localhost:${PORT}`));
-T h i s   i s   a   c o n f l i c t i n g   c h a n g e   f r o m   f e a t u r e - b r a n c h  
- 

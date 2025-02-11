@@ -21,11 +21,7 @@
 
         <label>Location:</label>
         <select name="location" id="locationSelect" required>
-            <option value="">Select a Location</option>
-            <option value="A101">A101</option>
-            <option value="A102">A102</option>
-            <option value="B201">B201</option>
-            <option value="B202">B202</option>
+            <option value="">Loading locations...</option>
         </select><br>
 
         <label>Date:</label>
@@ -57,160 +53,182 @@
         <button type="submit" id="submitBtn">Submit</button>
         <span id="loader" style="display: none;">Loading...</span>
     </form>
-<script>
-    const slotTimes = {
-        "1": "8:00 AM - 8:50 AM",
-        "2": "9:00 AM - 9:50 AM",
-        "3": "10:00 AM - 10:50 AM",
-        "4": "11:00 AM - 11:50 AM",
-        "5": "12:00 PM - 12:50 PM",
-        "6": "1:00 PM - 1:50 PM",
-        "7": "2:00 PM - 2:50 PM",
-        "8": "3:00 PM - 3:50 PM",
-        "9": "4:00 PM - 4:50 PM",
-        "10": "5:00 PM - 5:50 PM",
-        "11": "6:00 PM - 6:50 PM",
-        "12": "7:00 PM - 7:50 PM"
-    };
 
-    // DOM Elements
-    const datePicker = document.getElementById("datePicker");
-    const slotSelect = document.getElementById("slotSelect");
-    const locationSelect = document.getElementById("locationSelect");
-    const timeDisplay = document.getElementById("timeDisplay");
-    const submitBtn = document.getElementById("submitBtn");
-    const loader = document.getElementById("loader");
-
-    // Set minimum date to today
-    const today = new Date().toISOString().split("T")[0];
-    datePicker.setAttribute("min", today);
-
-    // Event Listener for Slot Selection
-    slotSelect.addEventListener("change", function () {
-        timeDisplay.textContent = slotTimes[this.value] || "Select a valid slot";
-    });
-
-    // Function to Get Day from Date
-    function getDayFromDate(dateString) {
-        const date = new Date(dateString);
-        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        return days[date.getDay()];
-    }
-
-    // Fetch Occupied Slots (Permanent + Booked)
-    async function fetchOccupiedSlots() {
-        const selectedDate = datePicker.value;
-        const selectedLocation = locationSelect.value;
-
-        if (!selectedDate || !selectedLocation) return;
-
-        const selectedDay = getDayFromDate(selectedDate);
-
-        try {
-            const permResponse = await fetch(`http://localhost:3000/get-permanent-slots?day=${selectedDay}&location=${selectedLocation}`);
-            const permOccupiedSlots = await permResponse.json();
-
-            const bookedResponse = await fetch(`http://localhost:3000/get-booked-slots?date=${selectedDate}&location=${selectedLocation}`);
-            const bookedSlots = await bookedResponse.json();
-
-            const allOccupiedSlots = new Set([...permOccupiedSlots, ...bookedSlots]);
-
-            // Reset all slot options
-            [...slotSelect.options].forEach(option => {
-                option.hidden = false;
-                option.disabled = false;
-            });
-
-            // Disable booked slots
-            allOccupiedSlots.forEach(slot => {
-                const option = slotSelect.querySelector(`option[value="${slot}"]`);
-                if (option) {
-                    option.hidden = true;
-                    option.disabled = true;
-                }
-            });
-
-        } catch (error) {
-            console.error("🔥 Error fetching occupied slots:", error);
-            alert("Error fetching occupied slots. Please try again.");
-        }
-    }
-
-    // Fetch occupied slots when date or location changes
-    datePicker.addEventListener("change", fetchOccupiedSlots);
-    locationSelect.addEventListener("change", fetchOccupiedSlots);
-
-    // Handle Form Submission
-    document.getElementById("classForm").addEventListener("submit", async function (event) {
-        event.preventDefault();
-
-        submitBtn.disabled = true;
-        loader.style.display = "inline";
-
-        const formData = new FormData(event.target);
-        const selectedSlot = formData.get("slot");
-        const selectedDate = formData.get("date");
-
-        if (!selectedDate) {
-            alert("Please select a date!");
-            resetSubmitButton();
-            return;
-        }
-
-        if (!selectedSlot) {
-            alert("Please select a valid slot!");
-            resetSubmitButton();
-            return;
-        }
-
-        const selectedDay = getDayFromDate(selectedDate);
-
-        const data = {
-            courseName: formData.get("courseName"),
-            courseCode: formData.get("courseCode"),
-            instructor: formData.get("instructor"),
-            location: formData.get("location"),
-            date: selectedDate,
-            day: selectedDay,
-            slots: [{
-                slot: selectedSlot,
-                time: slotTimes[selectedSlot],
-                status: "temporary"
-            }],
-            description: formData.get("description")
+    <script>
+        const slotTimes = {
+            "1": "8:00 AM - 8:50 AM",
+            "2": "9:00 AM - 9:50 AM",
+            "3": "10:00 AM - 10:50 AM",
+            "4": "11:00 AM - 11:50 AM",
+            "5": "12:00 PM - 12:50 PM",
+            "6": "1:00 PM - 1:50 PM",
+            "7": "2:00 PM - 2:50 PM",
+            "8": "3:00 PM - 3:50 PM",
+            "9": "4:00 PM - 4:50 PM",
+            "10": "5:00 PM - 5:50 PM",
+            "11": "6:00 PM - 6:50 PM",
+            "12": "7:00 PM - 7:50 PM"
         };
 
-        try {
-            const response = await fetch("http://localhost:3000/add-classbookerease", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            });
+        // DOM Elements
+        const datePicker = document.getElementById("datePicker");
+        const slotSelect = document.getElementById("slotSelect");
+        const locationSelect = document.getElementById("locationSelect");
+        const timeDisplay = document.getElementById("timeDisplay");
+        const submitBtn = document.getElementById("submitBtn");
+        const loader = document.getElementById("loader");
 
-            const result = await response.json();
-            if (response.ok) {
-                alert(result.message);
-                event.target.reset();
-                slotSelect.value = "";
-                timeDisplay.textContent = "Select a slot";
-            } else {
-                alert(`Error: ${result.message}`);
+        // Set minimum date to today
+        const today = new Date().toISOString().split("T")[0];
+        datePicker.setAttribute("min", today);
+
+        // Fetch locations dynamically
+        async function fetchLocations() {
+            try {
+                const response = await fetch("http://localhost:3000/get-locations");
+                const data = await response.json();
+
+                locationSelect.innerHTML = ""; // Clear existing options
+
+                data.locations.forEach(location => {
+                    const option = document.createElement("option");
+                    option.value = location;
+                    option.textContent = location;
+                    locationSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error("🔥 Error fetching locations:", error);
+                alert("Failed to load locations.");
             }
-        } catch (error) {
-            console.error("🔥 Error submitting form:", error);
-            alert("An error occurred. Please try again.");
-        } finally {
-            resetSubmitButton();
         }
-    });
 
-    function resetSubmitButton() {
-        submitBtn.disabled = false;
-        loader.style.display = "none";
-    }
-</script>
+        // Event Listener for Slot Selection
+        slotSelect.addEventListener("change", function () {
+            timeDisplay.textContent = slotTimes[this.value] || "Select a valid slot";
+        });
 
+        // Function to Get Day from Date
+        function getDayFromDate(dateString) {
+            const date = new Date(dateString);
+            const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            return days[date.getDay()];
+        }
 
+        // Fetch Occupied Slots (Permanent + Booked)
+        async function fetchOccupiedSlots() {
+            const selectedDate = datePicker.value;
+            const selectedLocation = locationSelect.value;
+
+            if (!selectedDate || !selectedLocation) return;
+
+            const selectedDay = getDayFromDate(selectedDate);
+
+            try {
+                const permResponse = await fetch(`http://localhost:3000/get-permanent-slots?day=${selectedDay}&location=${selectedLocation}`);
+                const permOccupiedSlots = await permResponse.json();
+
+                const bookedResponse = await fetch(`http://localhost:3000/get-booked-slots?date=${selectedDate}&location=${selectedLocation}`);
+                const bookedSlots = await bookedResponse.json();
+
+                const allOccupiedSlots = new Set([...permOccupiedSlots, ...bookedSlots]);
+
+                // Reset all slot options
+                [...slotSelect.options].forEach(option => {
+                    option.hidden = false;
+                    option.disabled = false;
+                });
+
+                // Disable booked slots
+                allOccupiedSlots.forEach(slot => {
+                    const option = slotSelect.querySelector(`option[value="${slot}"]`);
+                    if (option) {
+                        option.hidden = true;
+                        option.disabled = true;
+                    }
+                });
+
+            } catch (error) {
+                console.error("🔥 Error fetching occupied slots:", error);
+                alert("Error fetching occupied slots. Please try again.");
+            }
+        }
+
+        // Fetch occupied slots when date or location changes
+        datePicker.addEventListener("change", fetchOccupiedSlots);
+        locationSelect.addEventListener("change", fetchOccupiedSlots);
+
+        // Handle Form Submission
+        document.getElementById("classForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            submitBtn.disabled = true;
+            loader.style.display = "inline";
+
+            const formData = new FormData(event.target);
+            const selectedSlot = formData.get("slot");
+            const selectedDate = formData.get("date");
+
+            if (!selectedDate) {
+                alert("Please select a date!");
+                resetSubmitButton();
+                return;
+            }
+
+            if (!selectedSlot) {
+                alert("Please select a valid slot!");
+                resetSubmitButton();
+                return;
+            }
+
+            const selectedDay = getDayFromDate(selectedDate);
+
+            const data = {
+                courseName: formData.get("courseName"),
+                courseCode: formData.get("courseCode"),
+                instructor: formData.get("instructor"),
+                location: formData.get("location"),
+                date: selectedDate,
+                day: selectedDay,
+                slots: [{
+                    slot: selectedSlot,
+                    time: slotTimes[selectedSlot],
+                    status: "temporary"
+                }],
+                description: formData.get("description")
+            };
+
+            try {
+                const response = await fetch("http://localhost:3000/add-classbookerease", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+                    event.target.reset();
+                    slotSelect.value = "";
+                    timeDisplay.textContent = "Select a slot";
+                } else {
+                    alert(`Error: ${result.message}`);
+                }
+            } catch (error) {
+                console.error("🔥 Error submitting form:", error);
+                alert("An error occurred. Please try again.");
+            } finally {
+                resetSubmitButton();
+            }
+        });
+
+        function resetSubmitButton() {
+            submitBtn.disabled = false;
+            loader.style.display = "none";
+        }
+
+        // Load locations when page loads
+        fetchLocations();
+    </script>
 </body>
 
 </html>

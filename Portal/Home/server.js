@@ -82,12 +82,16 @@ const classBookerEaseSchema = new mongoose.Schema({
   description: { type: String },
   createdAt: { type: Date, default: Date.now } // Auto timestamps
 });
-
+const LocationSchema = new mongoose.Schema({
+  location: { type: String, required: true, unique: true },
+  floor: { type: String, required: true }
+});
 const User = mongoose.model('User', userSchema);
 const Image = mongoose.model('Image', imageSchema);
 const Booking = mongoose.model('Booking', bookingSchema);
 const ClassFormCre = mongoose.model('ClassFormCre', classformcreSchema);
 const classbookering = mongoose.model("ClassBookerEase", classBookerEaseSchema);
+const locationrefere = mongoose.model('Location', LocationSchema);
 // Multer setup for file uploads
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
@@ -324,6 +328,14 @@ app.get('/classformcre', (req, res) => {
 app.get('/classbookerease', (req, res) => {
   res.sendFile(path.join(__dirname, 'obldkook.html'));
 });
+// Route to serve finaldisplayer.html
+app.get('/finalinch', (req, res) => {
+  res.sendFile(path.join(__dirname, 'finaldisplayer.html'));
+});
+// Route to serve locationbooker.html
+app.get('/locationbooker', (req, res) => {
+  res.sendFile(path.join(__dirname, 'locationbooker.html'));
+});
 app.post("/add-class", async (req, res) => {
   try {
     const { courseName, courseCode, instructor, day, slots, location, description } = req.body;
@@ -430,6 +442,52 @@ app.post("/add-classbookerease", async (req, res) => {
   } catch (error) {
     console.error("🔥 Error saving class booking:", error);
     res.status(500).json({ message: "Error saving class booking", error: error.message });
+  }
+});// ➤ Add a new location
+app.post('/add-location', async (req, res) => {
+  try {
+    const { location, floor } = req.body;
+    if (!location || !floor) {
+      return res.status(400).json({ error: 'Location and Floor are required' });
+    }
+    const newLocation = new locationrefere({ location, floor });
+    await newLocation.save();
+    res.status(201).json({ message: 'Location added successfully' });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ error: 'This location already exists' });
+    }
+    res.status(500).json({ error: 'Error adding location' });
+  }
+});
+
+// ➤ Remove a location
+app.post('/remove-location', async (req, res) => {
+  try {
+    const { location, floor } = req.body;
+    if (!location || !floor) {
+      return res.status(400).json({ error: 'Location and Floor are required' });
+    }
+    const result = await locationrefere.findOneAndDelete({ location, floor });
+    if (result) {
+      res.json({ message: 'Location deleted successfully' });
+    } else {
+      res.status(404).json({ error: 'Location not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error deleting location' });
+  }
+});
+
+// ➤ Fetch all locations and floors
+app.get('/get-locations', async (req, res) => {
+  try {
+    const locations = await locationrefere.find();
+    const locationArray = locations.map(item => item.location);
+    const floorArray = locations.map(item => item.floor);
+    res.json({ locations: locationArray, floors: floorArray });
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching locations' });
   }
 });
 

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locations</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .tab {
+            cursor: pointer;
+            padding: 10px;
+            display: inline-block;
+            background: lightgray;
+            margin: 5px;
+        }
+
+        .tab.active {
+            background: gray;
+            color: white;
+        }
+
+        .form-container {
+            display: none;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Manage Locations</h2>
+    <div>
+        <span class="tab active" id="createTab">Create Location</span>
+        <span class="tab" id="deleteTab">Delete Location</span>
+    </div>
+
+    <!-- Create Location Form -->
+    <div id="createForm" class="form-container">
+        <h3>Add Location</h3>
+        <input type="text" id="createLocation" placeholder="Location" required>
+        <select id="createFloor" required>
+            <option value="" disabled selected>Select Floor</option>
+            <option value="Ground">Ground</option>
+            <option value="First">First</option>
+            <option value="Second">Second</option>
+        </select>
+        <button onclick="addLocation()">Add</button>
+    </div>
+
+    <!-- Delete Location Form -->
+    <div id="deleteForm" class="form-container">
+        <h3>Delete Location</h3>
+        <input type="text" id="deleteLocation" placeholder="Location" required>
+        <select id="deleteFloor" required>
+            <option value="" disabled selected>Select Floor</option>
+            <option value="Ground">Ground</option>
+            <option value="First">First</option>
+            <option value="Second">Second</option>
+        </select>
+        <button onclick="deleteLocation()">Delete</button>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $("#createForm").show();
+            $(".tab").click(function () {
+                $(".tab").removeClass("active");
+                $(this).addClass("active");
+                $(".form-container").hide();
+                if ($(this).attr("id") === "createTab") {
+                    $("#createForm").show();
+                } else {
+                    $("#deleteForm").show();
+                }
+            });
+        });
+
+        function addLocation() {
+            let location = $("#createLocation").val();
+            let floor = $("#createFloor").val();
+            if (!floor) {
+                alert("Please select a floor.");
+                return;
+            }
+            $.post("/add-location", { location, floor }, function (response) {
+                alert(response.message);
+                $("#createLocation").val("");
+                $("#createFloor").val("");
+            }).fail(function (err) {
+                alert("Error: " + err.responseJSON.error);
+            });
+        }
+
+        function deleteLocation() {
+            let location = $("#deleteLocation").val();
+            let floor = $("#deleteFloor").val();
+            if (!floor) {
+                alert("Please select a floor.");
+                return;
+            }
+            $.post("/remove-location", { location, floor }, function (response) {
+                alert(response.message);
+                $("#deleteLocation").val("");
+                $("#deleteFloor").val("");
+            }).fail(function (err) {
+                alert("Error: " + err.responseJSON.error);
+            });
+        }
+    </script>
+
+</body>
+
+</html>

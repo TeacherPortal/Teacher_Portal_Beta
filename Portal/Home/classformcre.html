@@ -20,11 +20,8 @@
         <input type="text" name="instructor" required><br>
 
         <label>Location:</label>
-        <select name="location">
-            <option value="A101">A101</option>
-            <option value="A102">A102</option>
-            <option value="B201">B201</option>
-            <option value="B202">B202</option>
+        <select name="location" id="locationSelect">
+            <option value="">Loading...</option>
         </select><br>
 
         <label>Day:</label>
@@ -85,10 +82,30 @@
         // Get elements
         const daySelect = document.getElementById("daySelect");
         const slotSelect = document.getElementById("slotSelect");
-        const locationSelect = document.querySelector('select[name="location"]');
+        const locationSelect = document.getElementById("locationSelect");
         const timeDisplay = document.getElementById("timeDisplay");
         const submitBtn = document.getElementById("submitBtn");
         const loader = document.getElementById("loader");
+
+        // Fetch and populate locations
+        async function fetchLocations() {
+            try {
+                const response = await fetch("http://localhost:3000/get-locations");
+                const data = await response.json();
+
+                locationSelect.innerHTML = ""; // Clear existing options
+
+                data.locations.forEach(location => {
+                    const option = document.createElement("option");
+                    option.value = location;
+                    option.textContent = location;
+                    locationSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error("Error fetching locations:", error);
+                alert("Failed to load locations.");
+            }
+        }
 
         // Update time display when slot is changed
         slotSelect.addEventListener("change", function () {
@@ -200,6 +217,9 @@
                 loader.style.display = "none";
             }
         });
+
+        // Load locations when page loads
+        fetchLocations();
     </script>
 
 </body>

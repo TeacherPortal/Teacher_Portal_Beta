@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final Displayer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        #dateDisplay {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .box {position: relative;padding: 10px;
+            width: 90%;
+            height: 200px;
+            background-color: #3498db;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            border-radius: 8px;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                flex-wrap: wrap;
+                flex-direction: row;
+                justify-content: space-around;
+            }
+
+            .box {
+                width: 90%;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .box {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="dateDisplay"></div>
+
+    <div class="container">
+        <div class="box">Container 1</div>
+        <div class="box">Container 2</div>
+        <div class="box">Container 3</div>
+    </div>
+
+    <script>
+        function updateDate() {
+            const today = new Date();
+            const formattedDate = today.toDateString();
+            document.getElementById("dateDisplay").textContent = `Today's Date: ${formattedDate}`;
+        }
+
+        updateDate();
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Form</title>
+</head>
+
+<body>
+    <h2>Create Class Form</h2>
+    <form id="classForm">
+        <label>Course Name:</label>
+        <input type="text" name="courseName" required><br>
+
+        <label>Course Code:</label>
+        <input type="text" name="courseCode" required><br>
+
+        <label>Instructor:</label>
+        <input type="text" name="instructor" required><br>
+
+        <label>Location:</label>
+        <select name="location">
+            <option value="A101">A101</option>
+            <option value="A102">A102</option>
+            <option value="B201">B201</option>
+            <option value="B202">B202</option>
+        </select><br>
+
+        <label>Day:</label>
+        <select name="day" id="daySelect">
+            <option value="">Select a Day</option>
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+            <option value="Saturday">Saturday</option>
+        </select><br>
+
+        <label>Slot:</label>
+        <select name="slot" id="slotSelect">
+            <option value="">Please select a slot</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+        </select><br>
+
+        <label>Time:</label>
+        <span id="timeDisplay">8:00 AM - 8:50 AM</span><br>
+
+        <label>Description:</label>
+        <textarea name="description"></textarea><br>
+
+        <button type="submit" id="submitBtn">Submit</button>
+        <span id="loader" style="display: none;">Loading...</span>
+    </form>
+
+    <script>
+        // Time slots mapping
+        const slotTimes = {
+            "1": "8:00 AM - 8:50 AM",
+            "2": "9:00 AM - 9:50 AM",
+            "3": "10:00 AM - 10:50 AM",
+            "4": "11:00 AM - 11:50 AM",
+            "5": "12:00 PM - 12:50 PM",
+            "6": "1:00 PM - 1:50 PM",
+            "7": "2:00 PM - 2:50 PM",
+            "8": "3:00 PM - 3:50 PM",
+            "9": "4:00 PM - 4:50 PM",
+            "10": "5:00 PM - 5:50 PM",
+            "11": "6:00 PM - 6:50 PM",
+            "12": "7:00 PM - 7:50 PM"
+        };
+
+        // Get elements
+        const daySelect = document.getElementById("daySelect");
+        const slotSelect = document.getElementById("slotSelect");
+        const locationSelect = document.querySelector('select[name="location"]');
+        const timeDisplay = document.getElementById("timeDisplay");
+        const submitBtn = document.getElementById("submitBtn");
+        const loader = document.getElementById("loader");
+
+        // Update time display when slot is changed
+        slotSelect.addEventListener("change", function () {
+            timeDisplay.textContent = slotTimes[this.value] || "Select a valid slot";
+        });
+
+        // Function to fetch occupied slots dynamically based on day & location
+        async function fetchOccupiedSlots() {
+            const selectedDay = daySelect.value;
+            const selectedLocation = locationSelect.value;
+
+            if (!selectedDay || !selectedLocation) return;
+
+            try {
+                const response = await fetch(`http://localhost:3000/get-permanent-slots?day=${selectedDay}&location=${selectedLocation}`);
+                const occupiedSlots = await response.json();
+
+                // Enable all slots first
+                [...slotSelect.options].forEach(option => {
+                    option.hidden = false;
+                    option.disabled = false;
+                });
+
+                // Disable already booked slots for the selected location
+                occupiedSlots.forEach(slot => {
+                    const option = slotSelect.querySelector(`option[value="${slot}"]`);
+                    if (option) {
+                        option.hidden = true;
+                        option.disabled = true;
+                    }
+                });
+            } catch (error) {
+                console.error("Error fetching occupied slots:", error);
+                alert("Error fetching occupied slots. Please try again.");
+            }
+        }
+
+        // Update slot availability when either day OR location changes
+        daySelect.addEventListener("change", fetchOccupiedSlots);
+        locationSelect.addEventListener("change", fetchOccupiedSlots);
+
+        // Handle form submission
+        document.getElementById("classForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            // Disable submit button and show loader
+            submitBtn.disabled = true;
+            loader.style.display = "inline";
+
+            const formData = new FormData(event.target);
+            const selectedSlot = formData.get("slot");
+            const selectedDay = formData.get("day");
+
+            // Validate slot selection
+            if (!selectedDay) {
+                alert("Please select a day!");
+                submitBtn.disabled = false;
+                loader.style.display = "none";
+                return;
+            }
+
+            if (!selectedSlot) {
+                alert("Please select a valid slot!");
+                submitBtn.disabled = false;
+                loader.style.display = "none";
+                return;
+            }
+
+            const data = {
+                courseName: formData.get("courseName"),
+                courseCode: formData.get("courseCode"),
+                instructor: formData.get("instructor"),
+                location: formData.get("location"),
+                day: selectedDay,
+                slots: [{
+                    slot: selectedSlot,
+                    time: slotTimes[selectedSlot],
+                    status: "permanent",
+                }],
+                description: formData.get("description"),
+            };
+
+            try {
+                const response = await fetch("http://localhost:3000/add-class", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.message);
+
+                    // Reset form fields
+                    event.target.reset();
+                    slotSelect.value = ""; // Reset slot dropdown
+                    timeDisplay.textContent = "Select a valid slot"; // Reset time display
+                } else {
+                    alert(`Error: ${result.message}`);
+                }
+            } catch (error) {
+                console.error("Error submitting form:", error);
+                alert("An error occurred. Please try again.");
+            } finally {
+                // Re-enable submit button and hide loader
+                submitBtn.disabled = false;
+                loader.style.display = "none";
+            }
+        });
+    </script>
+
+</body>
+
+</html>

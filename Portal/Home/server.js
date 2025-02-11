@@ -1,19 +1,19 @@
 const express = require('express');
 const multer = require('multer');
 const mongoose = require('mongoose');
-const https = require('https');
 const path = require('path');
-const fetch = require('node-fetch');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
-
+const cors = require("cors");
 const app = express();
-
+app.use(express.json());
+app.use(cors());
 // Middleware setup
 app.use(cookieParser());
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 // MongoDB connection
 mongoose
@@ -31,11 +31,13 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
 });
+
 const imageSchema = new mongoose.Schema({
   name: { type: String, unique: true },
   data: Buffer,
   contentType: String,
 });
+
 const bookingSchema = new mongoose.Schema({
   venue: String,
   date: String,
@@ -46,13 +48,67 @@ const bookingSchema = new mongoose.Schema({
   bookingTime: { type: Date, default: Date.now },
 });
 
+const classformcreSchema = new mongoose.Schema({
+  courseName: { type: String, required: true },
+  courseCode: { type: String, required: true },
+  instructor: { type: String, required: true },
+  day: { type: String, required: true },
+  slots: [
+    {
+      slot: String,
+      time: String,
+      status: String,
+    },
+  ],
+  location: { type: String, required: true },
+  description: String,
+  createdAt: { type: Date, default: Date.now },
+});
+
+const classBookerEaseSchema = new mongoose.Schema({
+  courseName: { type: String, required: true },
+  courseCode: { type: String, required: true },
+  instructor: { type: String, required: true },
+  location: { type: String, required: true },
+  date: { type: Date, required: true },
+  day: { type: String, required: true },
+  slots: [
+    {
+      slot: String,
+      time: String,
+      status: String,
+    },
+  ],
+  description: { type: String },
+  createdAt: { type: Date, default: Date.now } // Auto timestamps
+});
+
 const User = mongoose.model('User', userSchema);
 const Image = mongoose.model('Image', imageSchema);
 const Booking = mongoose.model('Booking', bookingSchema);
-
+const ClassFormCre = mongoose.model('ClassFormCre', classformcreSchema);
+const classbookering = mongoose.model("ClassBookerEase", classBookerEaseSchema);
 // Multer setup for file uploads
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
+
+// Helper function to convert time to HH:MM AM/PM format
+function convertTo12HourFormat(timeStr) {
+  const [hour, minute] = timeStr.split(':').map(Number);
+  const date = new Date();
+  date.setHours(hour);
+  date.setMinutes(minute);
+
+  const options = { hour: '2-digit', minute: '2-digit', hour12: true };
+  return date.toLocaleTimeString([], options); // Returns time in HH:MM AM/PM
+}
+
+// Middleware to check authentication
+function authenticate(req, res, next) {
+  const { userName, userEmail } = req.cookies;
+  if (!userName || !userEmail) return res.redirect('/');
+  next();
+}
 
 // Routes
 
@@ -81,23 +137,6 @@ app.post('/login', async (req, res) => {
     res.redirect('/?error=Internal Server Error. Please try again later.');
   }
 });
-// Helper function to convert a time (HH:MM) to HH:MM AM/PM format
-// Helper function to convert time to HH:MM AM/PM format
-function convertTo12HourFormat(timeStr) {
-  const [hour, minute] = timeStr.split(':').map(Number);
-  const date = new Date();
-  date.setHours(hour);
-  date.setMinutes(minute);
-
-  const options = { hour: '2-digit', minute: '2-digit', hour12: true };
-  return date.toLocaleTimeString([], options);  // Returns time in HH:MM AM/PM
-}
-// Middleware to check authentication
-function authenticate(req, res, next) {
-  const { userName, userEmail } = req.cookies;
-  if (!userName || !userEmail) return res.redirect('/');
-  next();
-}
 
 // Homepage route
 app.get('/homepage', authenticate, (req, res) => {
@@ -108,10 +147,12 @@ app.get('/homepage', authenticate, (req, res) => {
 app.get('/booking', authenticate, (req, res) => {
   res.sendFile(path.join(__dirname, 'Booking.html'));
 });
+
 app.get('/forall', authenticate, (req, res) => {
   res.sendFile(path.join(__dirname, 'forall.html'));
 });
-// Submit booking route// Submit booking route
+
+// Submit booking route
 app.post('/submit-booking', authenticate, async (req, res) => {
   const { venue, date, startTime, endTime, message } = req.body;
   const userEmail = req.cookies.userEmail;
@@ -122,11 +163,11 @@ app.post('/submit-booking', authenticate, async (req, res) => {
     const formattedEndTime = convertTo12HourFormat(endTime);
 
     // Manually handle the time zone conversion to avoid any UTC issues.
-    const startDateTime = new Date(`${date}T${startTime}:00`);  // Use local time for comparison
-    const endDateTime = new Date(`${date}T${endTime}:00`);      // Use local time for comparison
+    const startDateTime = new Date(`${date}T${startTime}:00`); // Use local time for comparison
+    const endDateTime = new Date(`${date}T${endTime}:00`); // Use local time for comparison
 
-    console.log('Start DateTime:', startDateTime);  // Add logging for debugging
-    console.log('End DateTime:', endDateTime);      // Add logging for debugging
+    console.log('Start DateTime:', startDateTime); // Add logging for debugging
+    console.log('End DateTime:', endDateTime); // Add logging for debugging
 
     // Check if the generated startDateTime and endDateTime are valid
     if (isNaN(startDateTime) || isNaN(endDateTime)) {
@@ -153,8 +194,8 @@ app.post('/submit-booking', authenticate, async (req, res) => {
     const newBooking = new Booking({
       venue,
       date,
-      startTime: formattedStartTime,  // Store it as a string in HH:MM AM/PM format
-      endTime: formattedEndTime,      // Store it as a string in HH:MM AM/PM format
+      startTime: formattedStartTime, // Store it as a string in HH:MM AM/PM format
+      endTime: formattedEndTime, // Store it as a string in HH:MM AM/PM format
       message,
       userEmail,
     });
@@ -167,7 +208,6 @@ app.post('/submit-booking', authenticate, async (req, res) => {
   }
 });
 
-
 // Random quote API route
 const quotes = [
   { content: "Love is our true essence. This love should be awakened in every person.", author: "Sri Mata Amritanandamayi Devi" },
@@ -177,12 +217,11 @@ const quotes = [
   { content: "Happiness depends on how we react to external circumstances.", author: "Sri Mata Amritanandamayi Devi" }
 ];
 
-// Random quote API route (without external API)
 app.get('/api/quote', (req, res) => {
   const randomIndex = Math.floor(Math.random() * quotes.length);
   res.json(quotes[randomIndex]);
 });
-// Get bookings API route
+
 // Get bookings API route
 app.get('/api/bookings', authenticate, async (req, res) => {
   const { venue, start, end } = req.query;
@@ -208,6 +247,7 @@ app.get('/api/bookings', authenticate, async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch bookings' });
   }
 });
+
 // API to get filtered bookings by venue and date
 app.get('/api/filtered-bookings', authenticate, async (req, res) => {
   const { venue, date } = req.query;
@@ -222,14 +262,14 @@ app.get('/api/filtered-bookings', authenticate, async (req, res) => {
 
     // Apply date filter if provided (match by date only, ignoring time part)
     if (date) {
-      query.date = date;  // Direct match on 'date' field in the database
+      query.date = date; // Direct match on 'date' field in the database
     }
 
     const bookings = await Booking.find(query).select('venue date startTime endTime message -_id');
 
     // Return the bookings exactly as they are in the database
     const formattedBookings = bookings.map(booking => ({
-      ...booking.toObject(),  // Convert Mongoose document to plain object
+      ...booking.toObject(), // Convert Mongoose document to plain object
     }));
 
     res.json({ bookings: formattedBookings });
@@ -238,7 +278,6 @@ app.get('/api/filtered-bookings', authenticate, async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch filtered bookings' });
   }
 });
-
 
 // Image upload route
 app.post('/upload', authenticate, upload.single('image'), async (req, res) => {
@@ -276,34 +315,124 @@ app.get('/api/image', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch image' });
   }
 });
+
 // Route to serve classformcre.html
 app.get('/classformcre', (req, res) => {
   res.sendFile(path.join(__dirname, 'classformcre.html'));
 });
-
-const classformcreSchema = new mongoose.Schema({
-  courseName: { type: String, required: true },
-  courseCode: { type: String, required: true, unique: true },
-  instructor: { type: String, required: true },
-  slots: [
-    { slot: 1, time: '08:00 - 08:50', status: String },
-    { slot: 2, time: '08:50 - 9:40', status: String },
-    { slot: 3, time: '9:40 - 10:30', status: String },
-    { slot: 4, time: '11:00 - 12:00', status: String },
-    { slot: 5, time: '12:00 - 13:00', status: String },
-    { slot: 6, time: '13:00 - 14:00', status: String },
-    { slot: 7, time: '14:00 - 15:00', status: String },
-    { slot: 8, time: '15:00 - 16:00', status: String },
-    { slot: 9, time: '16:00 - 17:00', status: String },
-    { slot: 10, time: '17:00 - 18:00', status: String },
-    { slot: 11, time: '18:00 - 19:00', status: String },
-    { slot: 12, time: '19:00 - 20:00', status: String }
-  ],
-  location: { type: String, required: true },
-  description: String,
-  createdAt: { type: Date, default: Date.now },
+// Route to serve obldkook.html
+app.get('/classbookerease', (req, res) => {
+  res.sendFile(path.join(__dirname, 'obldkook.html'));
 });
-//monster
+app.post("/add-class", async (req, res) => {
+  try {
+    const { courseName, courseCode, instructor, day, slots, location, description } = req.body;
+
+    // Check if slot is already taken for that day AND location
+    const existingClass = await ClassFormCre.findOne({ day, location, "slots.slot": slots[0].slot });
+
+    if (existingClass) {
+      return res.status(400).json({ message: "Error: Slot already exists for this day and location!" });
+    }
+
+    // Save new class (allowing same courseCode, but different location/slot/day)
+    const newClass = new ClassFormCre({
+      courseName,
+      courseCode,  // ✅ No unique constraint on courseCode now
+      instructor,
+      day,
+      slots,
+      location,
+      description
+    });
+
+    await newClass.save();
+    res.json({ message: "Class added successfully!" });
+
+  } catch (error) {
+    console.error("🔥 Error saving class:", error);
+    res.status(500).json({ message: "Error saving class", error: error.message });
+  }
+});
+
+
+app.get("/get-permanent-slots", async (req, res) => {
+  try {
+    const { day, location } = req.query;
+    if (!day || !location) {
+      return res.status(400).json({ message: "Day and Location are required" });
+    }
+
+    // Find all permanent slots on the given day and location
+    const takenSlots = await ClassFormCre.find({ day, location, "slots.status": "permanent" })
+      .select("slots.slot");
+
+    // Flatten results into an array of occupied slot numbers
+    const occupiedSlots = takenSlots.flatMap(cls => cls.slots.map(slot => slot.slot));
+
+    res.json(occupiedSlots);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching permanent slots", error });
+  }
+});
+// 📌 **Updated: Endpoint to Fetch Booked Slots by Location & Date**
+app.get("/get-booked-slots", async (req, res) => {
+  try {
+    const { date, location } = req.query;
+
+    if (!date || !location) {
+      return res.status(400).json({ message: "Date and location are required!" });
+    }
+
+    // Convert date to the format stored in MongoDB
+    const formattedDate = new Date(date).toISOString().split("T")[0];
+
+    // Find bookings matching the given date and location
+    const bookedClasses = await classbookering.find({
+      location,
+      date: { $gte: new Date(formattedDate), $lt: new Date(formattedDate + "T23:59:59.999Z") },
+    });
+
+    // Extract booked slots
+    let bookedSlots = [];
+    bookedClasses.forEach((classBooking) => {
+      classBooking.slots.forEach((slot) => {
+        bookedSlots.push(slot.slot);
+      });
+    });
+
+    res.json(bookedSlots);
+  } catch (error) {
+    console.error("🔥 Error fetching booked slots:", error);
+    res.status(500).json({ message: "Error fetching booked slots", error: error.message });
+  }
+});
+// 📌 **Updated: Endpoint to Add a Class Booking**
+app.post("/add-classbookerease", async (req, res) => {
+  try {
+    const { courseName, courseCode, instructor, location, date, day, slots, description } = req.body;
+
+    const formattedDate = new Date(date).toISOString().split("T")[0];
+
+    const newBooking = new classbookering({
+      courseName,
+      courseCode,
+      instructor,
+      location,
+      date: formattedDate,
+      day,
+      slots,
+      description,
+    });
+
+    await newBooking.save();
+    res.json({ message: "Class booked successfully!" });
+  } catch (error) {
+    console.error("🔥 Error saving class booking:", error);
+    res.status(500).json({ message: "Error saving class booking", error: error.message });
+  }
+});
+
 // Start the server
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server is running on http://localhost:${PORT}`));

@@ -321,15 +321,15 @@ app.get('/api/image', async (req, res) => {
 });
 
 // Route to serve classformcre.html
-app.get('/classformcre', (req, res) => {
+app.get('/createclass', (req, res) => {
   res.sendFile(path.join(__dirname, 'classformcre.html'));
 });
 // Route to serve obldkook.html
-app.get('/classbookerease', (req, res) => {
+app.get('/bookclass', (req, res) => {
   res.sendFile(path.join(__dirname, 'obldkook.html'));
 });
 // Route to serve finaldisplayer.html
-app.get('/finalinch', (req, res) => {
+app.get('/displayclass', (req, res) => {
   res.sendFile(path.join(__dirname, 'finaldisplayer.html'));
 });
 // Route to serve locationbooker.html

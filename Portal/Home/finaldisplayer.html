@@ -26,16 +26,37 @@
             gap: 15px;
         }
 
-        .box {position: relative;padding: 10px;
+        .box {
             width: 90%;
-            height: 200px;
             background-color: #3498db;
             color: white;
             display: flex;
+            flex-wrap: wrap;
+            /* Makes sure locations are in a row */
+            justify-content: flex-start;
             align-items: center;
-            justify-content: center;
             font-size: 18px;
             border-radius: 8px;
+            padding: 10px;
+            min-height: 100px;
+        }
+
+        .box-title {
+            width: 100%;
+            font-size: 1.2em;
+            font-weight: 900;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .location-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 5px;
+            font-size: 16px;
+            white-space: nowrap;
         }
 
         @media (min-width: 768px) {
@@ -55,28 +76,182 @@
                 width: 90%;
             }
         }
+        .card {
+            width: 280px;
+            background-color: #fff;
+            color: black;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;cursor: pointer;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 5px 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .slot-list {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .slot {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            width: 100%;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+.container1 {
+    position: relative;
+    display: flex;width: 100%;margin: 10px;overflow-x: scroll;
+}
+.container1 .card {
+    position: relative;width: 220px;display: flex;justify-content: center;align-items: center;margin: 10px;
+}.container1 .card .slot {
+    position: relative;width: 220px;display: flex;justify-content: center;align-items: center;margin: 10px;flex-direction: column;
+}
     </style>
 </head>
 
 <body>
 
     <div id="dateDisplay"></div>
-
+<div class="container1" id="cardContainer">
+    <!-- Cards will be inserted dynamically here -->
+</div><br>
     <div class="container">
-        <div class="box">Container 1</div>
-        <div class="box">Container 2</div>
-        <div class="box">Container 3</div>
+        <div class="box" id="groundContainer">
+            <div class="box-title">Ground Floor:</div>
+        </div>
+        <div class="box" id="firstContainer">
+            <div class="box-title">First Floor:</div>
+        </div>
+        <div class="box" id="secondContainer">
+            <div class="box-title">Second Floor:</div>
+        </div>
     </div>
 
     <script>
         function updateDate() {
             const today = new Date();
-            const formattedDate = today.toDateString();
-            document.getElementById("dateDisplay").textContent = `Today's Date: ${formattedDate}`;
+            const formattedDate = today.toISOString().split("T")[0]; // YYYY-MM-DD format
+            document.getElementById("dateDisplay").textContent = `Today's Date: ${today.toDateString()}`;
+            return formattedDate;
         }
 
+        async function fetchLocations() {
+            try {
+                const response = await fetch("http://localhost:3000/get-locations");
+                const data = await response.json();
+
+                const locations = data.locations;
+                const floors = data.floors;
+
+                const groundContainer = document.getElementById("groundContainer");
+                const firstContainer = document.getElementById("firstContainer");
+                const secondContainer = document.getElementById("secondContainer");
+
+                groundContainer.querySelectorAll(".location-item").forEach(item => item.remove());
+                firstContainer.querySelectorAll(".location-item").forEach(item => item.remove());
+                secondContainer.querySelectorAll(".location-item").forEach(item => item.remove());
+
+                locations.forEach((location, index) => {
+                    const floor = floors[index];
+                    const locationDiv = document.createElement("div");
+                    locationDiv.className = "location-item";
+                    locationDiv.textContent = location;
+
+                    if (floor === "Ground") {
+                        groundContainer.appendChild(locationDiv);
+                    } else if (floor === "First") {
+                        firstContainer.appendChild(locationDiv);
+                    } else if (floor === "Second") {
+                        secondContainer.appendChild(locationDiv);
+                    }
+                });
+            } catch (error) {
+                console.error("Error fetching locations:", error);
+            }
+        }
+
+        function createCards() {
+            const timeSlots = {
+                "1": "8:00 AM - 8:50 AM",
+                "2": "8:50 AM - 9:40 AM",
+                "3": "9:40 AM - 10:30 AM",
+                "4": "10:45 AM - 11:35 AM",
+                "5": "11:35 AM - 12:25 PM",
+                "6": "12:25 PM - 1:15 PM",
+                "7": "1:15 PM - 2:05 PM",
+                "8": "2:05 PM - 2:55 PM",
+                "9": "2:55 PM - 3:45 PM",
+                "10": "3:45 PM - 4:35 PM",
+                "11": "4:35 PM - 5:25 PM",
+                "12": "5:25 PM - 6:15 PM"
+            };
+
+            const cardContainer = document.getElementById("cardContainer");
+
+            for (let i = 1; i <= 12; i++) {
+                const card = document.createElement("div");
+                card.className = "card";
+                card.setAttribute("data-slot", i); // Store slot number
+
+                const cardTitle = document.createElement("div");
+                cardTitle.className = "card-title";
+                cardTitle.textContent = `Slot ${i}`;
+
+                const slotDiv = document.createElement("div");
+                slotDiv.className = "slot";
+                slotDiv.innerHTML = `<strong>Slot: ${i}</strong><br>${timeSlots[i]}`;
+                slotDiv.style.textAlign = "center";
+
+                card.appendChild(slotDiv);
+                card.addEventListener("click", () => fetchAvailableLocations(i)); // Attach event listener
+                cardContainer.appendChild(card);
+            }
+        }
+
+        async function fetchAvailableLocations(slot) {
+            const date = updateDate(); // Get current date
+
+            try {
+                const response = await fetch(`http://localhost:3000/get-available-locations?date=${date}&slot=${slot}`);
+                const data = await response.json();
+                const availableLocations = data.availableLocations;
+
+                highlightAvailableLocations(availableLocations);
+            } catch (error) {
+                console.error("Error fetching available locations:", error);
+            }
+        }
+
+        function highlightAvailableLocations(availableLocations) {
+            document.querySelectorAll(".location-item").forEach(item => {
+                if (availableLocations.includes(item.textContent)) {
+                    item.style.backgroundColor = "green";
+                    item.style.color = "white";
+                } else {
+                    item.style.backgroundColor = "rgba(255, 0, 0, 1)";
+                    item.style.color = "white";
+                }
+            });
+        }
+
+        createCards();
         updateDate();
+        fetchLocations();
     </script>
+
 
 </body>
 

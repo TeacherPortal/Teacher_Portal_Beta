@@ -490,6 +490,39 @@ app.get('/get-locations', async (req, res) => {
     res.status(500).json({ error: 'Error fetching locations' });
   }
 });
+app.get("/get-available-locations", async (req, res) => {
+  try {
+    const { date, slot } = req.query;
+
+    if (!date || !slot) {
+      return res.status(400).json({ message: "Date and slot are required!" });
+    }
+
+    // Convert date to the correct format
+    const formattedDate = new Date(date).toISOString().split("T")[0];
+
+    // Get all booked locations for the given date and slot
+    const bookedClasses = await classbookering.find({
+      date: { $gte: new Date(formattedDate), $lt: new Date(formattedDate + "T23:59:59.999Z") },
+      "slots.slot": slot,
+    }).select("location");
+
+    // Extract booked locations
+    const bookedLocations = bookedClasses.map((cls) => cls.location);
+
+    // Get all locations
+    const allLocations = await locationrefere.find().select("location");
+    const locationArray = allLocations.map((item) => item.location);
+
+    // Filter available locations
+    const availableLocations = locationArray.filter(loc => !bookedLocations.includes(loc));
+
+    res.json({ availableLocations });
+  } catch (error) {
+    console.error("🔥 Error fetching available locations:", error);
+    res.status(500).json({ message: "Error fetching available locations", error: error.message });
+  }
+});
 
 // Start the server
 const PORT = 3000;

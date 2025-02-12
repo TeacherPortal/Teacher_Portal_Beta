@@ -12,7 +12,7 @@
             font-family: Arial, sans-serif;
             background-color: RGB(255,228,196);
             margin: 0;
-            padding: 0;
+            padding: 0;overflow-x: hidden;
         }
 
         #dateDisplay {
@@ -23,11 +23,13 @@
             margin-top: 20px;
         }
 
-        .container {
+        .container {position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 30px;
+            margin: 10px;
+            margin-bottom: 5%;
         }
 
         .box {
@@ -189,13 +191,50 @@
         }
 
 .container1 {
-    position: relative;
-    display: flex;width: 100%;margin: 10px;overflow-x: scroll;
+    position: relative;width: 90%;margin: 10px;padding: 10px;
+    display: flex;
+    padding-bottom: 20px;
+    overflow-x: scroll;
 }
 .container1 .card {
     position: relative;width: 220px;display: flex;justify-content: center;align-items: center;margin: 10px;
 }.container1 .card .slot {
     position: relative;width: 220px;display: flex;justify-content: center;align-items: center;margin: 10px;flex-direction: column;
+}
+#datePicker {position: relative;text-align: center;
+    appearance: none; /* Removes default styles */
+    background-color: #f8f9fa; /* Light gray background */
+    border: 2px solid #b80257; /* Blue border */
+    border-radius: 8px; /* Rounded corners */
+    padding: 10px 15px;
+    font-size: 18px;
+    color: #333; /* Dark text */
+    outline: none;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+/* When hovered */
+#datePicker:hover {
+    background-color: #e2e6ea;
+}
+
+/* When focused (clicked) */
+#datePicker:focus {
+    border-color: #0056b3;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Optional: Style the calendar dropdown */
+#datePicker::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+    cursor: pointer;
+}
+.onlyfordate {
+    position: relative;top: 0;left: 0;width: 100%;display: flex;justify-content: center;overflow: hidden;margin: 10px;margin-bottom: 30px;
+}
+.styleforcont {
+    position: relative;top:0;left: 0;width: 100%;display: flex;justify-content: center;overflow: hidden;
 }
     </style>
 </head>
@@ -238,11 +277,13 @@
                 </div>
             </li>
         </ul>
-    </nav>
-    <div id="dateDisplay"></div>
+    </nav><br>
+    <div class="onlyfordate"><input type="date" id="datePicker" min="">
+    </div><div class="styleforcont">
 <div class="container1" id="cardContainer">
     <!-- Cards will be inserted dynamically here -->
-</div><br>
+</div>
+    </div><br>
     <div class="container">
         <div class="box" id="groundContainer">
             <div class="box-title">Ground Floor:</div>
@@ -256,6 +297,19 @@
     </div>
 
     <script>
+         // Set the default date constraints and value
+            const datePicker = document.getElementById("datePicker");
+            const today = new Date().toISOString().split("T")[0];
+
+            datePicker.min = today; // Prevent selecting past dates
+            datePicker.value = today; // Default to today
+
+            // Function to get selected date
+            function getSelectedDate() {
+                return datePicker.value || today;
+            }
+
+
         document.querySelector('.vatar').addEventListener('click', function () {
             const popper = document.querySelector('.popperforvatar');
             if (popper.style.display === 'none' || !popper.style.display) {
@@ -378,18 +432,30 @@
         }
 
         async function fetchAvailableLocations(slot) {
-            const date = updateDate(); // Get current date
+                const date = getSelectedDate(); // Use selected date from date picker
 
-            try {
-                const response = await fetch(`http://localhost:3000/get-available-locations?date=${date}&slot=${slot}`);
-                const data = await response.json();
-                const availableLocations = data.availableLocations;
+                try {
+                    // Fetch both API responses
+                    const [response1, response2] = await Promise.all([
+                        fetch(`http://localhost:3000/get-available-locations?date=${date}&slot=${slot}`).then(res => res.json()),
+                        fetch(`http://localhost:3000/get-locations-by-date-slot?date=${date}&slot=${slot}`).then(res => res.json())
+                    ]);
 
-                highlightAvailableLocations(availableLocations);
-            } catch (error) {
-                console.error("Error fetching available locations:", error);
+                    // Extract available locations from both responses
+                    const availableLocations = response1.availableLocations || [];
+                    const unavailableLocations = response2 || []; // Directly an array
+
+                    // First, highlight available locations (green)
+                    highlightAvailableLocations(availableLocations);
+
+                    // Then, highlight unavailable locations (red) (overrides green if needed)
+                    highlightUnavailableLocations(unavailableLocations);
+
+                } catch (error) {
+                    console.error("Error fetching available locations:", error);
+                }
             }
-        }
+
 
         function highlightAvailableLocations(availableLocations) {
             document.querySelectorAll(".location-item").forEach(item => {
@@ -402,9 +468,16 @@
                 }
             });
         }
-
+    // Function to highlight unavailable locations (red)
+        function highlightUnavailableLocations(unavailableLocations) {
+            document.querySelectorAll(".location-item").forEach(item => {
+                if (unavailableLocations.includes(item.textContent)) {
+                    item.style.backgroundColor = "rgba(255, 0, 0, 1)"; // Red
+                    item.style.color = "white";
+                }
+            });
+        }
         createCards();
-        updateDate();
         fetchLocations();
     </script>
 

@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const cors = require("cors");
+const moment = require('moment');
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -523,7 +524,29 @@ app.get("/get-available-locations", async (req, res) => {
     res.status(500).json({ message: "Error fetching available locations", error: error.message });
   }
 });
+app.get("/get-locations-by-date-slot", async (req, res) => {
+  try {
+    const { date, slot } = req.query;
 
+    if (!date || !slot) {
+      return res.status(400).json({ message: "Date and Slot are required" });
+    }
+
+    // Convert date to the corresponding day of the week
+    const dayOfWeek = moment(date, "YYYY-MM-DD").format("dddd"); // Converts "2024-02-12" to "Monday"
+
+    // Find all entries that match the given day and slot
+    const classes = await ClassFormCre.find({ day: dayOfWeek, "slots.slot": slot }).select("location");
+
+    // Extract locations from the results
+    const locations = classes.map(cls => cls.location);
+
+    res.json(locations);
+  } catch (error) {
+    console.error("🔥 Error fetching locations:", error);
+    res.status(500).json({ message: "Error fetching locations", error: error.message });
+  }
+});
 // Start the server
 const PORT = 3000;
 app.listen(PORT, () => console.log(`Server is running on http://localhost:${PORT}`));

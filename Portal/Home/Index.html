@@ -12,128 +12,6 @@
             padding: 0;
             background: RGB(255, 228, 196);
         }
-       /* Navbar container */
-nav {
-    background-color: #b80257;
-    padding: 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* Navbar list */
-nav ul {position: relative;
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-/* Navbar list */
-nav ul li{position: relative;
-    display: flex;
-    align-items: center;
-    margin: 0;
-    padding: 0;
-}
-/* Left side (Logo) */
-nav ul li.logo {
-    flex-shrink: 0;
-    margin-top: 15px;
-}
-
-/* Centered welcome message */
-nav ul li.welcome-message {position: relative;justify-content: center;
-    flex-grow: 1;
-    text-align: center;
-    color: white;
-    font-size: 18px;
-}
-
-/* Right side (Dropdowns and Account) */
-nav ul li.dropdown, nav ul li.account {
-    display: inline-block;
-    margin-left: 20px;
-    margin-top: 20px;
-}
-
-/* Styling for links */
-nav ul li a {position: relative;display: flex;justify-content: center;align-items: center;
-    color: white;text-align: center;
-    text-decoration: none;
-    font-size: 16px;
-    padding-right: 15px;
-}
-
-/* Dropdown styles */
-nav ul li .dropdown-content {
-    display: none;
-    position: absolute;
-    top: 40px;
-    left: -70px;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-}
-/* Dropdown styles */
-nav ul li .dropdown-content1 {
-    display: none;
-    position: absolute;
-    top: 40px;
-    left: -30px;
-    background-color: #f9f9f9;
-    min-width: 160px;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-}
-nav ul li .dropdown-content a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    text-align: left;
-}
-
-nav ul li .dropdown-content a:hover {
-    background-color: #ddd;
-}
-
-nav ul li .dropdown-content1 a {
-    color: black;
-    padding: 12px 16px;
-    text-decoration: none;
-    display: block;
-    text-align: left;
-}
-
-nav ul li .dropdown-content1 a:hover {
-    background-color: #ddd;
-}
-
-nav ul li:hover .dropdown-content {
-    display: block;
-}
-nav ul li:hover .dropdown-content1 {
-    display: block;
-}
-
-/* Avatar icon styles */
-nav ul li .vatar {
-    position: relative;
-    top:-4px;
-    margin-right: 16px;
-}
-
-nav ul li .vatar img {
-    height: 60px;
-}
-
-nav ul li .material-symbols-outlined {
-    font-size: 24px;
-}
 /* Popper for the avatar dropdown */
 .popperforvatar {
     display: none;
@@ -215,22 +93,33 @@ nav ul li .material-symbols-outlined {
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             padding: 20px;
             z-index: 1000;
-            width: 18%;
+            width: 300px;
             border-radius: 10px;
         }
-        #popup-close {
+        
+        #popup-close, #popup-book {
             background-color: #dc3545;
             color: white;
             border: none;
-            padding: 5px 10px;
+            padding: 10px;
             cursor: pointer;
-            float: right;
-            border-radius: 3px;
-            margin-right: 20%;
+            border-radius: 5px;
+            width: 100%;
+            margin-top: 10px;
         }
+        
+        #popup-book {
+            background-color: #007BFF;
+        }
+        
+        #popup-book:hover {
+            background-color: #0056b3;
+        }
+        
         #popup-close:hover {
             background-color: #a71d2a;
         }
+        
         #overlay {
             display: none;
             position: fixed;
@@ -241,20 +130,7 @@ nav ul li .material-symbols-outlined {
             background-color: rgba(0, 0, 0, 0.5);
             z-index: 999;
         }
-        #popup-book {
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            cursor: pointer;
-            float: left;
-            margin-right: 10px;
-            border-radius: 3px;
-            margin-left: 20%;
-        }
-        #popup-book:hover {
-            background-color: #0056b3;
-        }  .logo img {
+        .logo img {
             height: 40px;
         }
         nav .logo img:hover {
@@ -262,14 +138,105 @@ nav ul li .material-symbols-outlined {
     }
     nav .logo img {
             transition: transform 0.3s ease-in-out;
-            margin-left: 15px;
         }
+    nav{
+        background-color: #900246;
+        box-shadow: 3px 3px 5px rgba(0,0,0,0.1);
+        margin: 0;
+        padding: 0;
+    }
+    nav ul {
+    width: 100%;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+}
+.welcome-message {
+    flex-grow: 1;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+    nav li{
+        height: 50px;
+    }
+    nav a{
+        height: 100%;
+        padding: 0 30px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        color: white;
+    }
+    .dropdown a:hover{
+        background-color: #f0f0f0;
+        color: black;
+    }
+    nav li:first-child{
+        margin-right: auto;
+    }
+    /* Dropdown Menu */
+.dropdown {
+    position: relative;
+}
+
+.dropdown ul {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    min-width: 140px;
+    border-radius: 9px;
+    margin-top: 2px;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.dropdown ul li {
+    width: 100%;
+    border-bottom: 1px inset #ccc;
+    border-radius: 5px;
+}
+.dropdown ul li a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3px;
+    text-decoration: none;
+    color: #900246;
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.dropdown ul li a:hover {
+    background-color: #900246;
+    color: white;
+    opacity: 1;
+    visibility: visible;
+    display: flex;
+}
+.dropdown:hover ul {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+}
+
     </style>
 </head>
 <body>
     <nav>
         <ul>
-            <!-- Logo on the left -->
             <li class="logo">
                 <a href="/homepage"> 
                     <div data-image-name="mainlogo">
@@ -277,31 +244,19 @@ nav ul li .material-symbols-outlined {
                     </div>
                 </a>
             </li>
-    
-            <!-- Welcome message in the center -->
-            <li class="welcome-message">
-                <a href="#">Hi, <span id="welcome-message">, Guest!</span></a>
+            <li class="welcome-message"><a href="#">Hi, <span id="welcome-message">, Guest!</span></a></li>
+            <li class="dropdown"><a href="#" class="dropbtn">Classroom</a>
+                <ul>
+                    <li><a href="/bookclass">Book Class</a></li>
+                    <li><a href="/displayclass">Check Availability</a></li>
+                </ul>
             </li>
-    
-            <!-- Classroom dropdown -->
-            <li class="dropdown">
-                <a href="#" class="dropbtn">Classroom</a>
-                <div class="dropdown-content1">
-                    <a href="/bookclass">Book Class</a>
-                    <a href="/displayclass">Check Availability</a>
-                </div>
+            <li class="dropdown"><a href="#" class="dropbtn">Hall</a>
+                <ul>
+                    <li><a href="/booking">Book Hall</a></li>
+                    <li><a href="/forall">Check Availability</a></li>
+                </ul>
             </li>
-    
-            <!-- Hall dropdown -->
-            <li class="dropdown">
-                <a href="#" class="dropbtn">Hall</a>
-                <div class="dropdown-content">
-                    <a href="/booking">Book Hall</a>
-                    <a href="/forall">Check Availability</a>
-                </div>
-            </li>
-    
-            <!-- Account icon on the right -->
             <li class="account">
                 <a href="#">
                     <div class="vatar">
@@ -313,7 +268,7 @@ nav ul li .material-symbols-outlined {
                 </div>
             </li>
         </ul>
-    </nav>    
+    </nav>   
     <div class="container">
         <div class="quote-box">
             <h2>Message Of The Day</h2>
@@ -355,6 +310,32 @@ nav ul li .material-symbols-outlined {
         <button id="popup-close">Close</button>
     </div>
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+    let dropdown = document.querySelector(".dropdown");
+    let dropdownMenu = dropdown.querySelector("ul");
+    let timeout;
+
+    dropdown.addEventListener("mouseenter", function() {
+        clearTimeout(timeout);
+        dropdownMenu.style.display = "block";
+    });
+
+    dropdown.addEventListener("mouseleave", function() {
+        timeout = setTimeout(() => {
+            dropdownMenu.style.display = "none";
+        }, 200); // Adjust delay time if needed
+    });
+
+    dropdownMenu.addEventListener("mouseenter", function() {
+        clearTimeout(timeout);
+    });
+
+    dropdownMenu.addEventListener("mouseleave", function() {
+        timeout = setTimeout(() => {
+            dropdownMenu.style.display = "none";
+        }, 200);
+    });
+});
         // Toggle visibility of .popperforvatar on .vatar click
 const vatar = document.querySelector('.vatar');
 const popper = document.querySelector('.popperforvatar');

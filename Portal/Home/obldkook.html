@@ -87,58 +87,93 @@
             margin-bottom: 10px;
             font-weight: bold;
         }
-        nav {
-            background-color: #b80257;
-            padding: 0 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        nav ul {
-            display: flex;
-            justify-content: flex-end;
-            width: 100%;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-        nav ul li {
-            margin-left: 20px;
-            margin-top: 20px;
-        }
-        nav ul li.logo {
-            margin-right: auto;
-            margin-top: 15px;
-        }
-        nav ul li a {
-            color: white;
-            text-decoration: none;
-            font-size: 16px;
-            padding-right: 15px;
-        }
-        nav ul li .dropdown-content {
-            display: none;
-            position: absolute;
-            background-color: #f9f9f9;
-            min-width: 160px;
-            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-            z-index: 1;
-        }
-        nav ul li .dropdown-content a {
-            color: black;
-            padding: 12px 16px;
-            text-decoration: none;
-            display: block;
-            text-align: left;
-        }
-        nav ul li .dropdown-content a:hover {
-            background-color: #ddd;
-        }
-        nav ul li:hover .dropdown-content {
-            display: block;
-        }
+        nav{
+        background-color: #900246;
+        box-shadow: 3px 3px 5px rgba(0,0,0,0.1);
+        margin: 0;
+        padding: 0;
+    }
+    nav ul {
+    width: 100%;
+    list-style: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+}
+
+    nav li{
+        height: 50px;
+    }
+    nav a{
+        height: 100%;
+        padding: 0 20px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        color: white;
+    }
+    .dropdown a:hover{
+        background-color: #f0f0f0;
+        color: black;
+    }
+    nav li:first-child{
+        margin-right: auto;
+    }
+    /* Dropdown Menu */
+.dropdown {
+    position: relative;
+}
+
+.dropdown ul {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: white;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    min-width: 140px;
+    border-radius: 9px;
+    margin-top: 2px;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.dropdown ul li {
+    width: 100%;
+    border-bottom: 1px inset #ccc;
+    border-radius: 5px;
+}
+
+.dropdown ul li a {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3px;
+    text-decoration: none;
+    color: #900246;
+    transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.dropdown ul li a:hover {
+    background-color: #900246;
+    color: white;
+    opacity: 1;
+    visibility: visible;
+    display: flex;
+}
+.dropdown:hover ul {
+    display: block;
+    opacity: 1;
+    visibility: visible;
+}
         .vatar{
-            margin-left: 40px;
+            margin-left: 10px;
             margin-right: 10px;
         }
         .popperforvatar button {
@@ -166,23 +201,19 @@
                     </div>
                 </a>
             </li>
-            <li class="dropdown">
-                <a href="#" class="dropbtn">Classroom</a>
-                <div class="dropdown-content">
-                    <a href="/bookclass">Book Class</a>
-                    <a href="/displayclass">Check Availability</a>
-                </div>
+            <li class="dropdown"><a href="#" class="dropbtn">Classroom</a>
+                <ul>
+                    <li><a href="/bookclass">Book Class</a></li>
+                    <li><a href="/displayclass">Check Availability</a></li>
+                </ul>
             </li>
-            <li class="dropdown">
-                <a href="#" class="dropbtn">Hall</a>
-                <div class="dropdown-content">
-                    <a href="/booking">Book Hall</a>
-                    <a href="/forall">Check Availability</a>
-                </div>
+            <li class="dropdown"><a href="#" class="dropbtn">Hall</a>
+                <ul>
+                    <li><a href="/booking">Book Hall</a></li>
+                    <li><a href="/forall">Check Availability</a></li>
+                </ul>
             </li>
-            <li class="dropdown">
-                <a href="/homepage">Home</a>
-            </li>
+            <li><a href="/homepage">Home</a></li>
             <li class="account">
                 <a href="#">
                     <div class="vatar">
@@ -194,7 +225,7 @@
                 </div>
             </li>
         </ul>
-    </nav>    
+    </nav>
     <h1>Book Class</h1>   
     <div class="container">
         <form id="classForm">
@@ -244,6 +275,33 @@
     </div>
 
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+    let dropdown = document.querySelector(".dropdown");
+    let dropdownMenu = dropdown.querySelector("ul");
+    let timeout;
+
+    dropdown.addEventListener("mouseenter", function() {
+        clearTimeout(timeout);
+        dropdownMenu.style.display = "block";
+    });
+
+    dropdown.addEventListener("mouseleave", function() {
+        timeout = setTimeout(() => {
+            dropdownMenu.style.display = "none";
+        }, 200); // Adjust delay time if needed
+    });
+
+    dropdownMenu.addEventListener("mouseenter", function() {
+        clearTimeout(timeout);
+    });
+
+    dropdownMenu.addEventListener("mouseleave", function() {
+        timeout = setTimeout(() => {
+            dropdownMenu.style.display = "none";
+        }, 200);
+    });
+});
+
         document.querySelector('.vatar').addEventListener('click', function () {
             const popper = document.querySelector('.popperforvatar');
             if (popper.style.display === 'none' || !popper.style.display) {

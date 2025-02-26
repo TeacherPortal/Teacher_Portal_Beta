@@ -229,122 +229,117 @@
             <button type="submit" id="submit">Submit Booking</button>
         </form>
     </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-    let dropdown = document.querySelector(".dropdown");
-    let dropdownMenu = dropdown.querySelector("ul");
-    let timeout;
+    <script>document.addEventListener("DOMContentLoaded", function () {
+            let dropdown = document.querySelector(".dropdown");
+            let dropdownMenu = dropdown.querySelector("ul");
+            let timeout;
 
-    dropdown.addEventListener("mouseenter", function() {
-        clearTimeout(timeout);
-        dropdownMenu.style.display = "block";
-    });
+            dropdown.addEventListener("mouseenter", function () {
+                clearTimeout(timeout);
+                dropdownMenu.style.display = "block";
+            });
 
-    dropdown.addEventListener("mouseleave", function() {
-        timeout = setTimeout(() => {
-            dropdownMenu.style.display = "none";
-        }, 200); // Adjust delay time if needed
-    });
+            dropdown.addEventListener("mouseleave", function () {
+                timeout = setTimeout(() => {
+                    dropdownMenu.style.display = "none";
+                }, 200);
+            });
 
-    dropdownMenu.addEventListener("mouseenter", function() {
-        clearTimeout(timeout);
-    });
+            dropdownMenu.addEventListener("mouseenter", function () {
+                clearTimeout(timeout);
+            });
 
-    dropdownMenu.addEventListener("mouseleave", function() {
-        timeout = setTimeout(() => {
-            dropdownMenu.style.display = "none";
-        }, 200);
-    });
-});
-        // Helper function to convert 12-hour time (HH:MM AM/PM) to 24-hour time (HH:mm)
-        function convertTo24HourFormat(timeStr) {
-            const [time, period] = timeStr.split(' ');  // Split the time and AM/PM part
-            let [hour, minute] = time.split(':').map(Number);
-    
-            // If PM, and hour is not 12, add 12 to convert to 24-hour format
-            if (period === 'PM' && hour !== 12) {
-                hour += 12;
-            }
-    
-            // If AM and hour is 12, set it to 0 for midnight
-            if (period === 'AM' && hour === 12) {
-                hour = 0;
-            }
-    
-            // Format the time as HH:mm
-            return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-        }
-        async function fetchImageByName(imageName) {
-        try {
-            const response = await fetch(`/api/image?name=${imageName}`);
-            if (!response.ok) throw new Error(`Image not found: ${imageName}`);
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            document.getElementById(imageName).src = url;
-        } catch (error) {
-            console.error('Error fetching image:', error);
-        }
-    }
+            dropdownMenu.addEventListener("mouseleave", function () {
+                timeout = setTimeout(() => {
+                    dropdownMenu.style.display = "none";
+                }, 200);
+            });
 
-    // Fetch all images based on their data attributes
-    document.querySelectorAll('[data-image-name]').forEach(element => {
-        const imageName = element.getAttribute('data-image-name');
-        fetchImageByName(imageName);
-    });
-        // Attach the form submit event
-        document.getElementById("hall_form").addEventListener("submit", function(event) {
-            const dateInput = document.getElementById("date");
-            const startTimeInput = document.getElementById("startTime");
-            const endTimeInput = document.getElementById("endTime");
-            const currentDate = new Date();
-            const selectedDate = new Date(dateInput.value);
-            const startTime = startTimeInput.value;
-            const endTime = endTimeInput.value;
-    
-            // Prevent submission if date is in the past
-            if (selectedDate < currentDate.setHours(0, 0, 0, 0)) {
-                alert("Date cannot be in the past.");
-                event.preventDefault();
+            const userEmail = localStorage.getItem("userEmail");
+
+            if (!userEmail) {
+                alert("User email is missing. Please log in again.");
                 return;
             }
-    
-            // Ensure start time is before end time
-            if (startTime >= endTime) {
-                alert("Start time must be before end time.");
-                event.preventDefault();
-                return;
-            }
-    
-            // Convert times to 24-hour format (HH:mm)
-            startTimeInput.value = convertTo24HourFormat(startTime);
-            endTimeInput.value = convertTo24HourFormat(endTime);
+                document.getElementById("hall_form").addEventListener("submit", async function (event) {
+                    event.preventDefault(); // Prevent default form submission
+
+                    const dateInput = document.getElementById("date");
+                    const startTimeInput = document.getElementById("startTime");
+                    const endTimeInput = document.getElementById("endTime");
+                    const venueInput = document.getElementById("venue");
+                    const messageInput = document.getElementById("message");
+
+                    const currentDate = new Date();
+                    const selectedDate = new Date(dateInput.value);
+                    const startTime = startTimeInput.value;
+                    const endTime = endTimeInput.value;
+
+                    if (selectedDate < currentDate.setHours(0, 0, 0, 0)) {
+                        alert("Date cannot be in the past.");
+                        return;
+                    }
+
+                    if (!startTime || !endTime) {
+                        alert("Start time and end time are required.");
+                        return;
+                    }
+
+                    if (startTime >= endTime) {
+                        alert("Start time must be before end time.");
+                        return;
+                    }
+
+                    const userEmail = localStorage.getItem("userEmail");
+                    if (!userEmail) {
+                        alert("User email is missing. Please log in again.");
+                        return;
+                    }
+
+                    const formData = {
+                        userEmail: userEmail, 
+                        venue: venueInput.value,
+                        date: dateInput.value,
+                        startTime: startTime,
+                        endTime: endTime,
+                        message: messageInput.value,
+                    };
+
+                    try {
+                        const response = await fetch("/submit-booking", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(formData),
+                        });
+
+                        const result = await response.json();
+                        
+                        alert(result.message || result.error || "Booking submitted successfully!");
+
+                        if (response.ok) {
+                            this.reset();
+                        }
+                    } catch (error) {
+                        alert("An error occurred while submitting the form. Please try again.");
+                        console.error("Submission error:", error);
+                    }
+                });
+
+            document.querySelector('.vatar').addEventListener('click', function () {
+                const popper = document.querySelector('.popperforvatar');
+                popper.style.display = (popper.style.display === 'none' || !popper.style.display) ? 'block' : 'none';
+            });
+
+            document.addEventListener('click', function (event) {
+                const popper = document.querySelector('.popperforvatar');
+                const vatar = document.querySelector('.vatar');
+                if (popper && !vatar.contains(event.target) && !popper.contains(event.target)) {
+                    popper.style.display = 'none';
+                }
+            });
         });
-        document.querySelector('.vatar').addEventListener('click', function () {
-    const popper = document.querySelector('.popperforvatar');
-    if (popper.style.display === 'none' || !popper.style.display) {
-        popper.style.display = 'block'; // Show the dropdown
-    } else {
-        popper.style.display = 'none'; // Hide the dropdown
-    }
-});
-
-// Optional: Hide the dropdown when clicking outside of it
-document.addEventListener('click', function (event) {
-    const popper = document.querySelector('.popperforvatar');
-    const vatar = document.querySelector('.vatar');
-    if (popper && !vatar.contains(event.target) && !popper.contains(event.target)) {
-        popper.style.display = 'none';
-    }
-});
-const logoutBtn = document.getElementById('logout-btn');
-logoutBtn.addEventListener('click', () => {
-    // Clear cookies
-    document.cookie = 'userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    document.cookie = 'userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    
-    // Redirect to LoginPage
-    window.location.href = '/';
-});
     </script>
     
 </body>

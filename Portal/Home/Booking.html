@@ -234,26 +234,25 @@
             <button type="submit" id="submit">Submit Booking</button>
         </form>
     </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-    let dropdown = document.querySelector(".dropdown");
-    let dropdownMenu = dropdown.querySelector("ul");
-    let timeout;
+    <script>document.addEventListener("DOMContentLoaded", function () {
+            let dropdown = document.querySelector(".dropdown");
+            let dropdownMenu = dropdown.querySelector("ul");
+            let timeout;
 
-    dropdown.addEventListener("mouseenter", function() {
-        clearTimeout(timeout);
-        dropdownMenu.style.display = "block";
-    });
+            dropdown.addEventListener("mouseenter", function () {
+                clearTimeout(timeout);
+                dropdownMenu.style.display = "block";
+            });
 
-    dropdown.addEventListener("mouseleave", function() {
-        timeout = setTimeout(() => {
-            dropdownMenu.style.display = "none";
-        }, 200); // Adjust delay time if needed
-    });
+            dropdown.addEventListener("mouseleave", function () {
+                timeout = setTimeout(() => {
+                    dropdownMenu.style.display = "none";
+                }, 200);
+            });
 
-    dropdownMenu.addEventListener("mouseenter", function() {
-        clearTimeout(timeout);
-    });
+            dropdownMenu.addEventListener("mouseenter", function () {
+                clearTimeout(timeout);
+            });
 
     dropdownMenu.addEventListener("mouseleave", function() {
         timeout = setTimeout(() => {
@@ -346,9 +345,7 @@ logoutBtn.addEventListener('click', () => {
     // Clear cookies
     document.cookie = 'userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     document.cookie = 'userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    localStorage.removeItem('email');
-    localStorage.removeItem('userEmail');
-    history.replaceState(null, null, "/");
+    
     // Redirect to LoginPage
     window.location.href = '/';
 });

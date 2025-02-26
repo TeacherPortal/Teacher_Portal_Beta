@@ -158,60 +158,40 @@ app.get('/forall', authenticate, (req, res) => {
 });
 
 // Submit booking route
-app.post('/submit-booking', authenticate, async (req, res) => {
-  const { venue, date, startTime, endTime, message } = req.body;
-  const userEmail = req.cookies.userEmail;
-
+app.post("/submit-booking", async (req, res) => {
   try {
-    // Convert start and end times to HH:MM AM/PM format
-    const formattedStartTime = convertTo12HourFormat(startTime);
-    const formattedEndTime = convertTo12HourFormat(endTime);
+    
+    const { userEmail, venue, date, startTime, endTime, message } = req.body;
 
-    // Manually handle the time zone conversion to avoid any UTC issues.
-    const startDateTime = new Date(`${date}T${startTime}:00`); // Use local time for comparison
-    const endDateTime = new Date(`${date}T${endTime}:00`); // Use local time for comparison
-
-    console.log('Start DateTime:', startDateTime); // Add logging for debugging
-    console.log('End DateTime:', endDateTime); // Add logging for debugging
-
-    // Check if the generated startDateTime and endDateTime are valid
-    if (isNaN(startDateTime) || isNaN(endDateTime)) {
-      return res.status(400).send('Invalid date or time format.');
+    if (!userEmail || !venue || !date || !startTime || !endTime || !message) {
+      return res.status(400).json({ error: "All fields are required!" });
     }
 
-    // Check for conflicting bookings in the same venue and time slot
-    const conflictingBooking = await Booking.findOne({
+    const formattedStartTime = startTime;
+    const formattedEndTime = endTime;
+
+    const existingBooking = await Booking.findOne({
       venue,
       date,
       $or: [
-        {
-          $and: [
-            { startTime: { $lt: endDateTime } },
-            { endTime: { $gt: startDateTime } },
-          ],
-        },
-      ],
+        { startTime: { $lt: formattedEndTime }, endTime: { $gt: formattedStartTime } }
+      ]
     });
 
-    if (conflictingBooking) return res.status(400).send('Conflict: This slot is already booked!');
+    if (existingBooking) {
+      return res.status(400).json({ error: "Conflict: This slot is already booked!" });
+    }
 
-    // Save new booking to the database
-    const newBooking = new Booking({
-      venue,
-      date,
-      startTime: formattedStartTime, // Store it as a string in HH:MM AM/PM format
-      endTime: formattedEndTime, // Store it as a string in HH:MM AM/PM format
-      message,
-      userEmail,
-    });
-
+    const newBooking = new Booking({ userEmail, venue, date, startTime, endTime, message });
     await newBooking.save();
-    res.status(200).send('Booking successfully saved!');
+
+    res.status(200).json({ message: "Booking successfully saved!" });
   } catch (error) {
-    console.error('Error saving booking:', error);
-    res.status(500).send('Failed to save booking.');
+    console.error("🔴 Error saving booking:", error);
+    res.status(500).json({ error: "Failed to save booking." });
   }
 });
+
 
 // Random quote API route
 const quotes = [

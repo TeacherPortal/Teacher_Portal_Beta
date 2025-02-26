@@ -5,6 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HomePage</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=account_circle" />
     <title>HomePage</title>
+    <script> 
+    function getCookie(name) {
+    const cookies = document.cookie.split("; ");
+    for (let cookie of cookies) {
+        let [key, value] = cookie.split("=");
+        if (key === name) return decodeURIComponent(value);
+    }
+    return null;
+}
+
+// Store email in localStorage after login
+const email = getCookie("userEmail");
+if (email) {
+    localStorage.setItem("email", email);
+    localStorage.setItem("userEmail",email);
+} else {
+    console.log("Email not found in cookies");
+}
+if (!localStorage.getItem("email")) {
+    window.location.href = "/";
+    }  
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -351,7 +373,9 @@ logoutBtn.addEventListener('click', () => {
     // Clear cookies
     document.cookie = 'userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     document.cookie = 'userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    
+    localStorage.removeItem('email');
+    localStorage.removeItem('userEmail');
+    history.replaceState(null, null, "/");
     // Redirect to LoginPage
     window.location.href = '/';
 });

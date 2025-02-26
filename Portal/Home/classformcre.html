@@ -6,6 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=account_circle" />
     <title>Class Form</title>
+    <script>
+        if (!localStorage.getItem("email")) {
+        window.location.href = "/";
+        }  
+      </script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -259,14 +264,16 @@
         }
         });
         const logoutBtn = document.getElementById('logout-btn');
-        logoutBtn.addEventListener('click', () => {
+logoutBtn.addEventListener('click', () => {
     // Clear cookies
-        document.cookie = 'userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-        document.cookie = 'userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    
+    document.cookie = 'userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    document.cookie = 'userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    localStorage.removeItem('email');
+    localStorage.removeItem('userEmail');
+    history.replaceState(null, null, "/");
     // Redirect to LoginPage
-        window.location.href = '/';
-    });
+    window.location.href = '/';
+});
     async function fetchImageByName(imageName) {
         try {
             const response = await fetch(`/api/image?name=${imageName}`);

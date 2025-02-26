@@ -7,6 +7,11 @@
   <title>All Bookings</title>
   <!-- Include Flatpickr CSS -->
   <link href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css" rel="stylesheet">
+  <script>
+    if (!localStorage.getItem("email")) {
+    window.location.href = "/";
+    }  
+  </script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -397,7 +402,9 @@ logoutBtn.addEventListener('click', () => {
     // Clear cookies
     document.cookie = 'userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
     document.cookie = 'userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-    
+    localStorage.removeItem('email');
+    localStorage.removeItem('userEmail');
+    history.replaceState(null, null, "/");
     // Redirect to LoginPage
     window.location.href = '/';
 });

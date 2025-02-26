@@ -1,33 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking Form</title>      
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=account_circle" />
+    <title>Booking Form</title>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=account_circle" />
+    <script>
+        if (!localStorage.getItem("email")) {
+            window.location.href = "/";
+        }  
+    </script>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: RGB(255,228,196);
+            background-color: RGB(255, 228, 196);
             margin: 0;
             padding: 0;
         }
+
         nav .logo img {
             height: 40px;
             transition: transform 0.3s ease-in-out;
         }
-        img{
+
+        img {
             overflow-clip-margin: content-box;
             overflow: clip;
         }
-    nav .logo img:hover {
-        transform: scale(1.1);
-    }
+
+        nav .logo img:hover {
+            transform: scale(1.1);
+        }
+
         h1 {
             color: #b80257;
             text-align: center;
             margin-top: 30px;
         }
+
         .form-container {
             width: 40%;
             margin: 40px auto;
@@ -37,13 +49,17 @@
             border-radius: 8px;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
         }
+
         .form-container label {
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
             margin-left: 25%;
         }
-        .form-container input, .form-container select, .form-container textarea {
+
+        .form-container input,
+        .form-container select,
+        .form-container textarea {
             width: 50%;
             padding: 10px;
             margin-bottom: 20px;
@@ -52,10 +68,12 @@
             font-size: 1rem;
             margin-left: 25%;
         }
+
         .form-container input[type="date"],
         .form-container input[type="time"] {
             max-width: 200px;
         }
+
         .form-container button {
             width: 50%;
             margin-left: 25%;
@@ -67,118 +85,129 @@
             font-size: 1.2rem;
             cursor: pointer;
         }
+
         .form-container button:hover {
             background-color: lightpink;
         }
+
         @media (max-width: 768px) {
             .form-container {
                 width: 90%;
             }
         }
-        nav{
-        background-color: #900246;
-        box-shadow: 3px 3px 5px rgba(0,0,0,0.1);
-        margin: 0;
-        padding: 0;
-    }
-    nav ul {
-    width: 100%;
-    list-style: none;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0;
-    margin: 0;
-}
 
-    nav li{
-        height: 50px;
-    }
-    nav a{
-        height: 100%;
-        padding: 0 20px;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        color: white;
-    }
-    .dropdown a:hover{
-        background-color: #f0f0f0;
-        color: black;
-    }
-    nav li:first-child{
-        margin-right: auto;
-    }
-    /* Dropdown Menu */
-.dropdown {
-    position: relative;
-}
+        nav {
+            background-color: #900246;
+            box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
+            margin: 0;
+            padding: 0;
+        }
 
-.dropdown ul {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: white;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    min-width: 140px;
-    border-radius: 9px;
-    margin-top: 2px;
-    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
-    opacity: 0;
-    visibility: hidden;
-}
+        nav ul {
+            width: 100%;
+            list-style: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0;
+            margin: 0;
+        }
 
-.dropdown ul li {
-    width: 100%;
-    border-bottom: 1px inset #ccc;
-    border-radius: 5px;
-}
+        nav li {
+            height: 50px;
+        }
 
-.dropdown ul li a {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 3px;
-    text-decoration: none;
-    color: #900246;
-    transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
-}
+        nav a {
+            height: 100%;
+            padding: 0 20px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            color: white;
+        }
 
-.dropdown ul li a:hover {
-    background-color: #900246;
-    color: white;
-    opacity: 1;
-    visibility: visible;
-    display: flex;
-}
-.dropdown:hover ul {
-    display: block;
-    opacity: 1;
-    visibility: visible;
-}
+        .dropdown a:hover {
+            background-color: #f0f0f0;
+            color: black;
+        }
 
-        .vatar{
+        nav li:first-child {
+            margin-right: auto;
+        }
+
+        /* Dropdown Menu */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown ul {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: white;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            min-width: 140px;
+            border-radius: 9px;
+            margin-top: 2px;
+            transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .dropdown ul li {
+            width: 100%;
+            border-bottom: 1px inset #ccc;
+            border-radius: 5px;
+        }
+
+        .dropdown ul li a {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3px;
+            text-decoration: none;
+            color: #900246;
+            transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+        }
+
+        .dropdown ul li a:hover {
+            background-color: #900246;
+            color: white;
+            opacity: 1;
+            visibility: visible;
+            display: flex;
+        }
+
+        .dropdown:hover ul {
+            display: block;
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .vatar {
             margin-left: 10px;
             margin-right: 10px;
         }
+
         .popperforvatar button {
-    padding: 10px;
-    cursor: pointer;
-    background-color: #dc3545;
-    color: white;
-    border: none;
-}
+            padding: 10px;
+            cursor: pointer;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+        }
     </style>
 </head>
+
 <body>
     <nav>
         <ul>
             <li class="logo">
-                <a href="/homepage"> 
+                <a href="/homepage">
                     <div data-image-name="mainlogo">
                         <img src="" alt="Logo" id="mainlogo">
                     </div>
@@ -203,12 +232,13 @@
                         <span class="material-symbols-outlined">account_circle</span>
                     </div>
                 </a>
-                <div class="popperforvatar" style="display: none; position: absolute; right: 0; top: 50px; background: white; padding: 10px; border: 1px solid #ccc; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
+                <div class="popperforvatar"
+                    style="display: none; position: absolute; right: 0; top: 50px; background: white; padding: 10px; border: 1px solid #ccc; box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);">
                     <button id="logout-btn">Logout</button>
                 </div>
             </li>
         </ul>
-    </nav>      
+    </nav>
     <h1>Hall Booking Form</h1>
     <div class="form-container">
         <form action="/submit-booking" method="POST" id="hall_form">
@@ -261,71 +291,71 @@
                 alert("User email is missing. Please log in again.");
                 return;
             }
-                document.getElementById("hall_form").addEventListener("submit", async function (event) {
-                    event.preventDefault(); // Prevent default form submission
+            document.getElementById("hall_form").addEventListener("submit", async function (event) {
+                event.preventDefault(); // Prevent default form submission
 
-                    const dateInput = document.getElementById("date");
-                    const startTimeInput = document.getElementById("startTime");
-                    const endTimeInput = document.getElementById("endTime");
-                    const venueInput = document.getElementById("venue");
-                    const messageInput = document.getElementById("message");
+                const dateInput = document.getElementById("date");
+                const startTimeInput = document.getElementById("startTime");
+                const endTimeInput = document.getElementById("endTime");
+                const venueInput = document.getElementById("venue");
+                const messageInput = document.getElementById("message");
 
-                    const currentDate = new Date();
-                    const selectedDate = new Date(dateInput.value);
-                    const startTime = startTimeInput.value;
-                    const endTime = endTimeInput.value;
+                const currentDate = new Date();
+                const selectedDate = new Date(dateInput.value);
+                const startTime = startTimeInput.value;
+                const endTime = endTimeInput.value;
 
-                    if (selectedDate < currentDate.setHours(0, 0, 0, 0)) {
-                        alert("Date cannot be in the past.");
-                        return;
+                if (selectedDate < currentDate.setHours(0, 0, 0, 0)) {
+                    alert("Date cannot be in the past.");
+                    return;
+                }
+
+                if (!startTime || !endTime) {
+                    alert("Start time and end time are required.");
+                    return;
+                }
+
+                if (startTime >= endTime) {
+                    alert("Start time must be before end time.");
+                    return;
+                }
+
+                const userEmail = localStorage.getItem("userEmail");
+                if (!userEmail) {
+                    alert("User email is missing. Please log in again.");
+                    return;
+                }
+
+                const formData = {
+                    userEmail: userEmail,
+                    venue: venueInput.value,
+                    date: dateInput.value,
+                    startTime: startTime,
+                    endTime: endTime,
+                    message: messageInput.value,
+                };
+
+                try {
+                    const response = await fetch("/submit-booking", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(formData),
+                    });
+
+                    const result = await response.json();
+
+                    alert(result.message || result.error || "Booking submitted successfully!");
+
+                    if (response.ok) {
+                        this.reset();
                     }
-
-                    if (!startTime || !endTime) {
-                        alert("Start time and end time are required.");
-                        return;
-                    }
-
-                    if (startTime >= endTime) {
-                        alert("Start time must be before end time.");
-                        return;
-                    }
-
-                    const userEmail = localStorage.getItem("userEmail");
-                    if (!userEmail) {
-                        alert("User email is missing. Please log in again.");
-                        return;
-                    }
-
-                    const formData = {
-                        userEmail: userEmail, 
-                        venue: venueInput.value,
-                        date: dateInput.value,
-                        startTime: startTime,
-                        endTime: endTime,
-                        message: messageInput.value,
-                    };
-
-                    try {
-                        const response = await fetch("/submit-booking", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify(formData),
-                        });
-
-                        const result = await response.json();
-                        
-                        alert(result.message || result.error || "Booking submitted successfully!");
-
-                        if (response.ok) {
-                            this.reset();
-                        }
-                    } catch (error) {
-                        alert("An error occurred while submitting the form. Please try again.");
-                        console.error("Submission error:", error);
-                    }
-                });
+                } catch (error) {
+                    alert("An error occurred while submitting the form. Please try again.");
+                    console.error("Submission error:", error);
+                }
+            });
 
             document.querySelector('.vatar').addEventListener('click', function () {
                 const popper = document.querySelector('.popperforvatar');
@@ -340,7 +370,19 @@
                 }
             });
         });
+        const logoutBtn = document.getElementById('logout-btn');
+        logoutBtn.addEventListener('click', () => {
+            // Clear cookies
+            document.cookie = 'userName=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            document.cookie = 'userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            localStorage.removeItem('email');
+            localStorage.removeItem('userEmail');
+            history.replaceState(null, null, "/");
+            // Redirect to LoginPage
+            window.location.href = '/';
+        });
     </script>
-    
+
 </body>
+
 </html>

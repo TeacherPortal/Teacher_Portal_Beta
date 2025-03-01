@@ -84,9 +84,12 @@ const classBookerEaseSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now } // Auto timestamps
 });
 const LocationSchema = new mongoose.Schema({
-  location: { type: String, required: true, unique: true },
-  floor: { type: String, required: true }
-});
+  location: { type: String, required: true },
+  floor: { type: String, required: true },
+  capacity: { type: Number, required: true }
+}, { collation: { locale: 'en', strength: 2 }, unique: true });
+
+LocationSchema.index({ location: 1, floor: 1 }, { unique: true });
 const User = mongoose.model('User', userSchema);
 const Image = mongoose.model('Image', imageSchema);
 const Booking = mongoose.model('Booking', bookingSchema);
@@ -427,18 +430,22 @@ app.post("/add-classbookerease", async (req, res) => {
 });// ➤ Add a new location
 app.post('/add-location', async (req, res) => {
   try {
-    const { location, floor } = req.body;
-    if (!location || !floor) {
-      return res.status(400).json({ error: 'Location and Floor are required' });
+    const { location, floor, capacity } = req.body;
+
+    if (!location || !floor || capacity === undefined) {
+      return res.status(400).json({ error: "Location, Floor, and Capacity are required" });
     }
-    const newLocation = new locationrefere({ location, floor });
+
+    const newLocation = new locationrefere({ location, floor, capacity });
     await newLocation.save();
-    res.status(201).json({ message: 'Location added successfully' });
+    res.status(201).json({ message: "Location added successfully" });
+
   } catch (error) {
+    console.error("Error adding location:", error); // Log full error
     if (error.code === 11000) {
-      return res.status(400).json({ error: 'This location already exists' });
+      return res.status(400).json({ error: "This location already exists" });
     }
-    res.status(500).json({ error: 'Error adding location' });
+    res.status(500).json({ error: error.message || "Error adding location" });
   }
 });
 
@@ -467,6 +474,18 @@ app.get('/get-locations', async (req, res) => {
     const locationArray = locations.map(item => item.location);
     const floorArray = locations.map(item => item.floor);
     res.json({ locations: locationArray, floors: floorArray });
+  } catch (error) {
+    res.status(500).json({ error: 'Error fetching locations' });
+  }
+});
+// ➤ Fetch all locations, floors, and capacities
+app.get('/get-cap-locations', async (req, res) => {
+  try {
+    const locations = await locationrefere.find();
+    const locationArray = locations.map(item => item.location);
+    const floorArray = locations.map(item => item.floor);
+    const capacityArray = locations.map(item => item.capacity);
+    res.json({ locations: locationArray, floors: floorArray, capacities: capacityArray });
   } catch (error) {
     res.status(500).json({ error: 'Error fetching locations' });
   }

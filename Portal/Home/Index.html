@@ -253,6 +253,113 @@ if (!localStorage.getItem("email")) {
     opacity: 1;
     visibility: visible;
 }
+/* Responsive Styles */
+@media screen and (max-width: 1024px) {
+    .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .calendar-box {
+        margin-left: 0;
+        margin-top: 20px;
+        width: 100%;
+    }
+
+    .quote-box, .calendar-box {
+        width: 90%;
+    }
+}
+
+@media screen and (max-width: 768px) {
+     nav {
+        background-color: #900246;
+        box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.1);
+        padding: 10px 20px;
+        display: flex;
+        justify-content: center; /* Ensure centering */
+        align-items: center;
+        width: 100%;
+    }
+
+    nav ul {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 10px;
+        align-items: center;
+        justify-content: center;
+        list-style: none;
+        padding: 0;
+        margin: 0 auto;
+        width: 100%;
+        max-width: 600px; /* Limits max width for better centering */
+    }
+
+    nav li {
+        display: flex;
+        justify-content: center;
+        padding: 10px;
+        width: 100%;
+        text-align: center;
+    }
+
+
+
+    .dropdown ul {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        box-shadow: none;width: 100%;
+        text-align: center;
+    }
+
+    .dropdown ul li {
+        display: flex;
+    }
+
+    .welcome-message {
+        text-align: center;
+    }
+
+    .calendar-header {
+        flex-direction: column;
+    }
+
+    .calendar-header button {
+        width: 100%;
+        margin: 5px 0;
+    }
+
+    .calendar-table th,
+    .calendar-table td {
+        padding: 10px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+     nav ul {
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* 2 per row */
+        }
+    .quote-box, .calendar-box {
+        width: 100%;
+        padding: 15px;
+    }
+
+    .popperforvatar {
+        right: auto;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    nav a {
+        padding: 10px;
+    }
+
+    .dropdown a {
+        text-align: center;
+        padding: 8px;
+    }
+}
 
     </style>
 </head>

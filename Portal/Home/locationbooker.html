@@ -56,7 +56,10 @@
         }
 
         .form-container.active {
-            display: block;
+            display: flex;flex-direction: column;
+            justify-content: center;
+            padding: 40px;
+            align-items: center;
         }
 
         .form-container h3 {
@@ -65,18 +68,24 @@
             text-align: center;
         }
 
-        input,
-        select {
-            width: 100%;
+        input{
+            width: 90%;
             padding: 10px;
             margin: 10px 0;
-            border: 1px solid #ccc;
+            border: 2px solid #ccc;
             border-radius: 5px;
             font-size: 16px;
         }
-
-        button {
-            width: 100%;
+select {position: relative;
+            width: 50%;display: flex;justify-content: center;align-items: center;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {margin: 15px;
+            width: 50%;
             padding: 12px;
             background: #28a745;
             color: white;
@@ -90,28 +99,64 @@
         button:hover {
             background: #218838;
         }
+        .flexor {
+position: relative;display:flex;
+        }
+        .inputforcap {
+position:relative;margin-right:10px;width:40%;
+        }
+        .selectof {
+position:relative;margin-left:10px;
+        }
+        @media screen and (max-width: 400px){
+
+        .flexor {
+position: relative;display:flex;
+flex-wrap: wrap;justify-content: center;align-items: center;
+width: 100%;
+        }
+        .inputforcap {
+            
+            width: 90%;
+    padding: 10px;
+    margin-right: 0;
+        }
+        
+        .selectof {width: 100%;
+    padding: 10px;
+position:relative;margin-left:0;
+        }
+        }
+        @media screen and (max-width: 280px) {
+            .tab-container {
+                display: flex;flex-wrap: wrap;
+            }button {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 
 <body>
 
-    <h2>Manage Locations</h2>
+    <h1>Manage Locations</h1>
 
     <div class="tab-container">
         <span class="tab active" id="createTab">Create Location</span>
         <span class="tab" id="deleteTab">Delete Location</span>
     </div>
-
+<br><br>
     <div id="createForm" class="form-container active">
-        <h3>Add Location</h3>
+        <h3 style="font-weight: 900;font-family:Arial;font-size:1.3em;">Add Location</h3>
         <input type="text" id="createLocation" placeholder="Location Name">
-        <select id="createFloor">
+        <div class="flexor"><input type="number" id="createCapacity" placeholder="Capacity" min="1" class="inputforcap">
+        <select id="createFloor"style="" class="selectof">
             <option value="" disabled selected>Select Floor</option>
             <option value="Ground">Ground Floor</option>
             <option value="First">First Floor</option>
             <option value="Second">Second Floor</option>
         </select>
-        <input type="number" id="createCapacity" placeholder="Capacity" min="1">
+        </div>
         <button onclick="addLocation()">Add Location</button>
     </div>
 

@@ -13,11 +13,17 @@
     }  
   </script>
   <style>
+    *{
+      margin: 0;padding: 0;box-sizing: border-box;
+    }
+    html {
+      overflow-x: hidden;
+    }
     body {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background-color: RGB(255,228,196);
+      background-color: RGB(255,228,196);overflow-x: hidden;
     }
     .filters {
       display: flex;
@@ -60,9 +66,9 @@
     }
 
     table {
-      width: 100%;
+      width: 90%;
       border-collapse: collapse;
-      margin-top: 20px;
+      margin-top: 20px;overflow-x: auto;
     }
     table, th, td {
       border: 1px solid #ddd;
@@ -202,6 +208,26 @@
     color: white;
     border: none;
 }
+.tabholder {
+  position: relative;width: 100%;display: flex;justify-content: center;align-items: center;overflow-x: auto;padding: 20px;margin: 10px;
+}
+@media screen and (max-width: 530px) {
+html,body {
+  overflow-x: hidden;
+}
+nav ul {
+    width: 100%;
+    list-style: none;
+    display: flex;flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+}
+nav li:first-child {
+     margin-right: 0;
+}
+}
   </style>
 </head>
 <body>
@@ -254,21 +280,23 @@
       <input type="date" id="date">
     </div>
   </div>
-
-  <table id="bookings-table">
-    <thead>
-      <tr>
-        <th>Venue</th>
-        <th>Date</th>
-        <th>Start Time</th>
-        <th>End Time</th>
-        <th>Message</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td colspan="5">Loading...</td></tr>
-    </tbody>
-  </table>
+<div class="tabholder"><table id="bookings-table">
+  <thead>
+    <tr>
+      <th>Venue</th>
+      <th>Date</th>
+      <th>Start Time</th>
+      <th>End Time</th>
+      <th>Message</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td colspan="5">Loading...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 
   <!-- Include Flatpickr JS -->
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>

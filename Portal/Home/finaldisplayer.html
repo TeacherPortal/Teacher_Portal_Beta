@@ -13,6 +13,11 @@
         }  
       </script>
     <style>
+        * {margin: 0;
+            padding: 0;
+        }
+        html {overflow-x: hidden;
+        }
         body {
             font-family: Arial, sans-serif;
             background-color: RGB(255,228,196);
@@ -276,6 +281,20 @@
 }
 .styleforcont {
     position: relative;top:0;left: 0;width: 100%;display: flex;justify-content: center;overflow: hidden;
+}
+@media screen and (max-width: 500px){
+    nav ul {
+    width: 100%;
+    list-style: none;
+    display: flex;flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+}
+nav li:first-child {
+     margin-right: 0;
+}
 }
     </style>
 </head>
